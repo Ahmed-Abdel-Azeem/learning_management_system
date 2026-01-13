@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'features/home/presentation/screens/basic_home_page.dart';
+//import 'features/home/presentation/screens/basic_home_page.dart';
+import 'splash_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme:  AppTheme.lightTheme,
-      home: const BaseHome(title: 'SCA Learning Management System '),
+      home: const SplashScreen(),
     );
   }
 }

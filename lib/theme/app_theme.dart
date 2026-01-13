@@ -14,8 +14,7 @@ class AppColors {
 
   // Other
   static const Color border = Color(0xFFE5E7EB);
-}
-const MaterialColor primarySwatch = MaterialColor(
+ static const MaterialColor primarySwatch = MaterialColor(
   0xFF2F6FED,
   <int, Color>{
     50: Color(0xFFE8EFFF),
@@ -30,6 +29,8 @@ const MaterialColor primarySwatch = MaterialColor(
     900: Color(0xFF123785),
   },
 );
+}
+
 class AppTextStyles {
   static const TextStyle headline = TextStyle(
     fontSize: 20,
@@ -64,7 +65,8 @@ class AppTextStyles {
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    primarySwatch: primarySwatch,
+    primarySwatch: AppColors.primarySwatch,
+    
     primaryColor: AppColors.primary,
     scaffoldBackgroundColor: AppColors.scaffoldBackground,
     fontFamily: 'Poppins',
@@ -72,7 +74,8 @@ class AppTheme {
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
-      elevation: 0,
+      elevation: 8,
+      centerTitle: true,
     ),
 
     cardTheme: CardThemeData(
