@@ -11,6 +11,8 @@ class AppColors {
   // Text
   static const Color textPrimary = Color(0xFF1F2937);
   static const Color textSecondary = Color(0xFF6B7280);
+  static const List<Color> categoryColors = [ Colors.deepOrangeAccent,Colors.deepPurpleAccent, Colors.green, Colors.redAccent, ];
+
 
   // Other
   static const Color border = Color(0xFFE5E7EB);
@@ -55,6 +57,11 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
+  static const TextStyle secondary = TextStyle(
+    color: AppColors.primary,
+    fontSize: 13,
+    fontWeight: FontWeight.w500,
+  );
 
   static const TextStyle button = TextStyle(
     fontSize: 14,
@@ -72,7 +79,6 @@ class AppTheme {
     fontFamily: 'Poppins',
 
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
       elevation: 8,
       centerTitle: true,

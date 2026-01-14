@@ -26,11 +26,19 @@ class _BaseHomeState extends State<BaseHome> {
   ];
   @override
   Widget build(BuildContext context) {
+    final scheme = AppColors.primarySwatch;
     return Scaffold(
-
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
+        title: Text(widget.title,
+          overflow: TextOverflow.visible,),
+        elevation: 0,
+        flexibleSpace: Container(
+                  decoration: BoxDecoration( gradient: LinearGradient(
+                colors: [scheme.shade500, scheme.shade700, scheme.shade900],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )),
+      ),),
       body:  IndexedStack(
         index: _currentIndex,
         children: _screens,
