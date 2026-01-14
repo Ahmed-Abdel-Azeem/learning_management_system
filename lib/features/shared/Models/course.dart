@@ -10,7 +10,7 @@ class Course {
   final AfterPurchase? afterPurchase;
   final List<String> categories;
   final String? description;
-  final String? label;
+  final String? label; //auther name
   final Author? author;
   final String? courseImage;
   final double originalPrice;
@@ -18,7 +18,7 @@ class Course {
   final double finalPrice;
   final String dripFeed;
   final Identifiers identifiers;
-  final String access;
+  final String access; // course is free or paid
   final int created;
   final int modified;
 
