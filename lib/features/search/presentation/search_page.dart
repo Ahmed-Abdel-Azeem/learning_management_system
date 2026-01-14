@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:async';
+import 'package:learning_management_system/features/home/presentation/widgets/category_card.dart';
+import 'package:learning_management_system/features/home/presentation/widgets/course_card.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_state.dart';
-import 'package:learning_management_system/features/shared/Models/Course.dart';
+import 'package:learning_management_system/features/shared/Models/course.dart';
+import '../../../../theme/app_theme.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,152 +15,117 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late TextEditingController _searchController;
-  Timer? _debounce;
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _searchController = TextEditingController();
+    // init data
     context.read<SearchCubit>().init();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      context.read<SearchCubit>().setSearchQuery(query);
+    _controller.addListener(() {
+      setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SearchCubit, SearchState>(
-      builder: (context, state) {
-        final cubit = context.read<SearchCubit>();
-
-        List<Course> courses = [];
-        List<String> categories = [];
-        String selectedCategory = 'All categories';
-        String searchQuery = '';
-
-        if (state is SearchCategoriesLoaded) {
-          categories = state.categories;
-        } else if (state is SearchCourseLoaded) {
-          courses = state.courses;
-          categories = cubit.categories;
-          selectedCategory = state.selectedCategory;
-          searchQuery = state.searchQuery;
-          _searchController.text = searchQuery;
-          _searchController.selection = TextSelection.fromPosition(
-            TextPosition(offset: _searchController.text.length),
-          );
-        }
-
-        return Scaffold(
-          appBar: AppBar(title: const Text('Search Courses')),
-          body: Column(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
             children: [
-              // Categories as clickable Cards
-              SizedBox(
-                height: 60,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  children: [
-                    _categoryCard(
-                      'All categories',
-                      selectedCategory == 'All categories',
-                      cubit,
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    hintText: 'Search courses...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    ...categories.map(
-                      (cat) =>
-                          _categoryCard(cat, selectedCategory == cat, cubit),
-                    ),
-                  ],
+                  ),
+                  onChanged: (value) {
+                    context.read<SearchCubit>().setSearchQuery(value);
+                  },
                 ),
               ),
-
-              // Search bar (only if All categories selected)
-              if (selectedCategory.toLowerCase() == 'all categories')
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: const InputDecoration(
-                            hintText: 'Search courses...',
-                            border: OutlineInputBorder(),
-                          ),
-                          onChanged: _onSearchChanged,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.cancel),
-                        onPressed: () {
-                          _searchController.clear();
-                          cubit.cancelSearch();
-                        },
-                      ),
-                    ],
+              const SizedBox(width: 8),
+              if (_controller.text.isNotEmpty)
+                ElevatedButton(
+                  onPressed: () {
+                    _controller.clear();
+                    context.read<SearchCubit>().cancelSearch();
+                  },
+                  child: const Text('Cancel'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                   ),
                 ),
-
-              // Courses list
-              Expanded(
-                child: state is SearchLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : courses.isEmpty
-                    ? const Center(child: Text('No courses found'))
-                    : ListView.builder(
-                        itemCount: courses.length,
-                        itemBuilder: (context, index) {
-                          final course = courses[index];
-                          return ListTile(
-                            title: Text(course.title),
-                            subtitle: Text(course.categories.join(', ')),
-                          );
-                        },
-                      ),
-              ),
             ],
           ),
-        );
-      },
-    );
-  }
+        ),
 
-  Widget _categoryCard(String category, bool isSelected, SearchCubit cubit) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-      child: GestureDetector(
-        onTap: () => cubit.selectCategory(category),
-        child: Card(
-          color: isSelected ? Colors.blue : Colors.white,
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Text(
-              category,
-              style: TextStyle(
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+        Expanded(
+          child: BlocBuilder<SearchCubit, SearchState>(
+            builder: (context, state) {
+              if (state is SearchLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state is SearchError) {
+                return Center(child: Text(state.message));
+              } else if (state is SearchCategoriesLoaded) {
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: state.categories.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 3 / 2,
+                  ),
+                  itemBuilder: (context, index) {
+                    final category = state.categories[index];
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<SearchCubit>().selectCategory(category);
+                      },
+                      child: CategoryCard(
+                        category,
+                        'Courses under $category',
+                        AppColors.primary,
+                        Icons.category,
+                      ),
+                    );
+                  },
+                );
+              } else if (state is SearchCourseLoaded) {
+                final courses = state.courses;
+                if (courses.isEmpty) {
+                  return const Center(child: Text('No courses found'));
+                }
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: courses.length,
+                  itemBuilder: (context, index) {
+                    var course = courses[index];
+                    return CourseCard(
+                      title: course.title,
+                      category: course.categories.join(', '),
+                      author: course.author?.name ?? 'Unknown',
+                      image: course.courseImage,
+                      color: AppColors.primary,
+                    );
+                  },
+                );
+              }
+              return const SizedBox();
+            },
           ),
         ),
-      ),
+      ],
     );
   }
 }

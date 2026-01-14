@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../../../theme/app_theme.dart';
 
 class CategoryCard extends StatelessWidget {
   final String title, subtitle;
   final Color color;
   final IconData icon;
 
-
-  const CategoryCard(this.title, this.subtitle, this.color, this.icon, {super.key});
-
+  const CategoryCard(
+    this.title,
+    this.subtitle,
+    this.color,
+    this.icon, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,17 +29,21 @@ class CategoryCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600)),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle,
-                  style: const TextStyle(
-                      color: Colors.white70, fontSize: 12)),
+              Text(
+                subtitle,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
