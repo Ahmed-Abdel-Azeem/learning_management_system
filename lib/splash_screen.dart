@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:learning_management_system/features/home/presentation/screens/basic_home_page.dart';
+import 'package:learning_management_system/features/user/presentation/screens/login_page.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -26,12 +27,12 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // Navigate after a short delay
-    Timer(const Duration(milliseconds: 5000), () {
+    Timer(const Duration(milliseconds: 3000), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 500),
-          pageBuilder: (_, __, ___) => const BaseHome(title: 'SCA Learning Management System '),
+          pageBuilder: (_, __, ___) => BaseHome(title: 'L.M.S'),
           // pageBuilder: (_, __, ___) => BlocProvider(
           //   create: (context) => NewsListCubit(),
           //   child: const NewsListScreen(),
@@ -79,22 +80,25 @@ class _SplashScreenState extends State<SplashScreen>
                       color: Colors.white.withValues(alpha: 0.5),
                     ),
                   ),
-                  child:
-                  CircleAvatar(
+                  child: CircleAvatar(
                     backgroundColor: Colors.transparent,
                     child: ClipOval(
-                      child: Image.asset('lib/assets/images/logo.png',
-                      fit: BoxFit.fill,
-                      width: 150,
-                      height: 150,
-                      errorBuilder: (_, __, ___) => Icon(Icons.school, size: 40),),
+                      child: Image.asset(
+                        'lib/assets/images/logo.png',
+                        fit: BoxFit.fill,
+                        width: 150,
+                        height: 150,
+                        errorBuilder: (_, __, ___) =>
+                            Icon(Icons.school, size: 40),
+                      ),
                     ),
-                  //  Icon(
-                  //   Icons.school,
-                  //   color: Colors.white,
-                  //   size: 44,
-                  // ),
-                ),),
+                    //  Icon(
+                    //   Icons.school,
+                    //   color: Colors.white,
+                    //   size: 44,
+                    // ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.all(10),
@@ -107,9 +111,8 @@ class _SplashScreenState extends State<SplashScreen>
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.2,
-                    
                       ),
-                      textAlign: TextAlign.center
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
