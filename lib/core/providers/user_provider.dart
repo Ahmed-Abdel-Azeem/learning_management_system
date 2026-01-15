@@ -1,0 +1,57 @@
+import 'package:flutter/material.dart';
+import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/core/service/user_service.dart';
+import 'package:learning_management_system/features/user/models/user_model.dart';
+
+class UserProvider extends ChangeNotifier {
+  UserModel? _user;
+  bool _isLoading = false;
+  String? _error;
+
+  UserModel? get user => _user;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  bool get isLoggedIn => _user != null;
+
+  final UserService _userService;
+
+  UserProvider() : _userService = UserService(ApiService());
+
+  /// ---------------- LOGIN ----------------
+  Future<void> login(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _user = await _userService.getUser(email);
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// ---------------- SIGN UP ----------------
+  Future<void> signup({required String email, required String username}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _user = await _userService.createUser(email: email, username: username);
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// ---------------- LOGOUT ----------------
+  void logout() {
+    _user = null;
+    notifyListeners();
+  }
+}

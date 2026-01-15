@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
+import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/core/service/user_service.dart';
+import 'package:learning_management_system/features/shared/Models/course_progress_response.dart';
+import 'package:learning_management_system/features/user/models/user_model.dart';
 import 'package:learning_management_system/features/user/presentation/screens/login_page.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.title});
@@ -13,8 +19,43 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final ApiService _apiService = ApiService();
+  CourseProgressResponse? courses;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserCourses();
+  }
+
+  Future<void> _loadUserCourses() async {
+    final provider = context.read<UserProvider>();
+    final user = provider.user;
+
+    if (user == null) {
+      setState(() => _loading = false);
+      return;
+    }
+
+    try {
+      final res = await UserService(_apiService).getUserCourses(user.email);
+      if (!mounted) return;
+      setState(() {
+        courses = res;
+        _loading = false;
+      });
+    } catch (e, st) {
+      debugPrint('$st');
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<UserProvider>();
+    final UserModel user = provider.user!;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -52,8 +93,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         const SizedBox(height: 14),
-                        const Text(
-                          'Mohamed Ismail',
+                        Text(
+                          user.username ?? '',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -83,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           title: Text(
-                            "Full Name",
+                            "Username",
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -92,7 +133,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           subtitle: Text(
-                            "John Anderson",
+                            user.username ?? '',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -111,7 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           title: Text(
-                            "Username",
+                            "UserId",
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -120,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           subtitle: Text(
-                            "JohnAnderson",
+                            user.id,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -148,7 +189,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           subtitle: Text(
-                            "JohnAnderson@gmail.com",
+                            user.email,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -189,7 +230,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Column(
                                       children: [
                                         Text(
-                                          '12',
+                                          _loading
+                                              ? '...'
+                                              : '${courses?.data.length ?? 0}',
                                           style: TextStyle(
                                             fontSize: 22,
                                             color: Colors.white,
@@ -197,6 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             fontFamily: fontFamily,
                                           ),
                                         ),
+
                                         SizedBox(height: 4),
                                         Text(
                                           'Courses',
@@ -220,7 +264,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Column(
                                       children: [
                                         Text(
-                                          '48h',
+                                          _loading
+                                              ? '...'
+                                              : totalLearningTimeHM(courses),
                                           style: TextStyle(
                                             fontSize: 22,
                                             color: Colors.white,
@@ -251,7 +297,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Column(
                                       children: [
                                         Text(
-                                          '8',
+                                          _loading
+                                              ? '...'
+                                              : '${completedCount(courses)}',
                                           style: TextStyle(
                                             fontSize: 22,
                                             color: Colors.white,
@@ -277,44 +325,96 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         SizedBox(height: 16),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      LoginPage(),
-                                ),
-                              );
-                            },
-
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(FontAwesomeIcons.arrowRightFromBracket),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Logout',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: fontFamily,
+                        Consumer<UserProvider>(
+                          builder: (context, provider, child) {
+                            return SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: provider.isLoading
+                                    ? null
+                                    : () {
+                                        provider.logout();
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute<void>(
+                                            builder: (BuildContext context) =>
+                                                LoginPage(),
+                                          ),
+                                        );
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            behavior: SnackBarBehavior.floating,
+                                            margin: const EdgeInsets.all(16),
+                                            backgroundColor:
+                                                Colors.green.shade600,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            content: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.check_circle_outline,
+                                                  color: Colors.white,
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Logged out successfully!",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            duration: const Duration(
+                                              seconds: 3,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
+                                child: provider.isLoading
+                                    ? const SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            FontAwesomeIcons
+                                                .arrowRightFromBracket,
+                                          ),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            'Logout',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily: fontFamily,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -326,5 +426,28 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  int completedCount(CourseProgressResponse? response) {
+    if (response != null) {
+      return response.data.where((c) => c.status == 'completed').length;
+    } else {
+      return 0;
+    }
+  }
+
+  String totalLearningTimeHM(CourseProgressResponse? response) {
+    if (response == null) return '0h 0m';
+
+    final totalSeconds = response.data.fold<int>(
+      0,
+      (sum, c) => sum + c.timeOnCourse,
+    );
+
+    final duration = Duration(seconds: totalSeconds);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+
+    return '${hours}h ${minutes}m';
   }
 }

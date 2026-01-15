@@ -27,12 +27,12 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // Navigate after a short delay
-    Timer(const Duration(milliseconds: 3000), () {
+    Timer(const Duration(milliseconds: 1500), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 500),
-          pageBuilder: (_, __, ___) => BaseHome(title: 'L.M.S'),
+          pageBuilder: (_, __, ___) => LoginPage(),
           // pageBuilder: (_, __, ___) => BlocProvider(
           //   create: (context) => NewsListCubit(),
           //   child: const NewsListScreen(),

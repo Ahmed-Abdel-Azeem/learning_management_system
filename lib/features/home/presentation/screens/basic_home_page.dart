@@ -35,7 +35,10 @@ class _BaseHomeState extends State<BaseHome> {
         ),
         elevation: 0,
       ),
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: Container(
+        height: double.infinity,
+        child: IndexedStack(index: _currentIndex, children: _screens),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: AppColors.primary,

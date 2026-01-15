@@ -4,21 +4,21 @@ import 'package:learning_management_system/features/user/models/user_utms.dart';
 class UserModel {
   final String id;
   final String email;
-  final String username;
-  final bool subscribedForMarketingEmails;
-  final bool euCustomer;
-  final bool isAdmin;
-  final bool isInstructor;
-  final bool isSuspended;
-  final bool isAffiliate;
+  final String? username;
+  final bool? subscribedForMarketingEmails;
+  final bool? euCustomer;
+  final bool? isAdmin;
+  final bool? isInstructor;
+  final bool? isSuspended;
+  final bool? isAffiliate;
   final String? referrerId;
-  final double created;
-  final double lastLogin;
-  final String signupApprovalStatus;
-  final UserFields fields;
-  final List<String> tags;
-  final UserUtms utms;
-  final int? npsScore;
+  final double? created;
+  final double? lastLogin;
+  final String? signupApprovalStatus;
+  final UserFields? fields;
+  final List<String>? tags;
+  final UserUtms? utms;
+  final String? npsScore;
   final String? npsComment;
 
   UserModel({
@@ -54,15 +54,15 @@ class UserModel {
       isInstructor: json['is_instructor'] ?? false,
       isSuspended: json['is_suspended'] ?? false,
       isAffiliate: json['is_affiliate'] ?? false,
-      referrerId: json['referrer_id'],
-      created: (json['created'] as num).toDouble(),
-      lastLogin: (json['last_login'] as num).toDouble(),
-      signupApprovalStatus: json['signup_approval_status'],
+      referrerId: json['referrer_id'] ?? '',
+      created: json['created']?.toDouble(),
+      lastLogin: json['last_login']?.toDouble(),
+      signupApprovalStatus: json['signup_approval_status'] ?? '',
       fields: UserFields.fromJson(json['fields'] ?? {}),
       tags: List<String>.from(json['tags'] ?? []),
       utms: UserUtms.fromJson(json['utms'] ?? {}),
-      npsScore: json['nps_score'],
-      npsComment: json['nps_comment'],
+      npsScore: json['nps_score'] ?? '',
+      npsComment: json['nps_comment'] ?? '',
     );
   }
 
@@ -81,9 +81,9 @@ class UserModel {
       'created': created,
       'last_login': lastLogin,
       'signup_approval_status': signupApprovalStatus,
-      'fields': fields.toJson(),
+      'fields': fields?.toJson(),
       'tags': tags,
-      'utms': utms.toJson(),
+      'utms': utms?.toJson(),
       'nps_score': npsScore,
       'nps_comment': npsComment,
     };

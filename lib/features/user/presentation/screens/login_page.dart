@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:learning_management_system/core/constants/globals.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/core/utils/validations.dart';
 import 'package:learning_management_system/features/home/presentation/screens/basic_home_page.dart';
 import 'package:learning_management_system/features/user/presentation/screens/signup_page.dart';
 import 'package:learning_management_system/features/user/presentation/widgets/custom_textField.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   final formKey = GlobalKey<FormState>();
@@ -14,7 +16,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // var theme = Theme.of(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -88,38 +89,149 @@ class LoginPage extends StatelessWidget {
                           ),
 
                           SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          BaseHome(title: "L.M.S"),
+                          Consumer<UserProvider>(
+                            builder: (context, provider, child) {
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: provider.isLoading
+                                      ? null
+                                      : () async {
+                                          if (formKey.currentState!
+                                              .validate()) {
+                                            await provider.login(
+                                              loginEmailController.text,
+                                            );
+                                            if (provider.error != null) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  margin: const EdgeInsets.all(
+                                                    16,
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.red.shade700,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  content: Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.error_outline,
+                                                        color: Colors.white,
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          provider.error!,
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  duration: const Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                ),
+                                              );
+                                            } else if (provider.isLoggedIn) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  margin: const EdgeInsets.all(
+                                                    16,
+                                                  ),
+                                                  backgroundColor: Colors
+                                                      .green
+                                                      .shade600,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  content: Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons
+                                                            .check_circle_outline,
+                                                        color: Colors.white,
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Logged In Successfully!",
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 16,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                              Future.delayed(
+                                                const Duration(
+                                                  milliseconds: 500,
+                                                ),
+                                                () {
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) => BaseHome(
+                                                        title: "L.M.S",
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade800,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                  );
-                                }
-                              },
-
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue.shade800,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: provider.isLoading
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Sign In',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
                                 ),
-                              ),
-                              child: Text(
-                                'Sign In',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: fontFamily,
-                                ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:learning_management_system/core/constants/globals.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/core/utils/validations.dart';
 import 'package:learning_management_system/features/home/presentation/screens/basic_home_page.dart';
 import 'package:learning_management_system/features/user/presentation/screens/login_page.dart';
 import 'package:learning_management_system/features/user/presentation/widgets/custom_textField.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
+import 'package:provider/provider.dart';
 
 class SignupPage extends StatefulWidget {
   SignupPage({super.key});
@@ -114,95 +116,210 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                           SizedBox(height: 10),
 
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Password',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: fontFamily,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 4),
+                          // Align(
+                          //   alignment: Alignment.centerLeft,
+                          //   child: Text(
+                          //     'Password',
+                          //     style: TextStyle(
+                          //       fontSize: 14,
+                          //       fontWeight: FontWeight.w500,
+                          //       fontFamily: fontFamily,
+                          //     ),
+                          //   ),
+                          // ),
+                          // SizedBox(height: 4),
 
-                          TextFormField(
-                            controller: passwordController,
-                            cursorColor: Colors.blue.shade800,
-                            obscureText: !_isPasswordVisible,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.symmetric(vertical: 8),
-                              hintText: 'Enter your password',
-                              hintStyle: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 15,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.lock,
-                                color: Colors.blue.shade800,
-                              ),
-                              suffixIcon: Padding(
-                                padding: EdgeInsets.only(left: 5),
-                                child: IconButton(
-                                  icon: Icon(
-                                    _isPasswordVisible
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                    color: Colors.grey,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  },
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  color: Colors.blue.shade800,
-                                ),
-                              ),
-                            ),
-                          ),
-
+                          // TextFormField(
+                          //   controller: passwordController,
+                          //   cursorColor: Colors.blue.shade800,
+                          //   obscureText: !_isPasswordVisible,
+                          //   decoration: InputDecoration(
+                          //     contentPadding: EdgeInsets.symmetric(vertical: 8),
+                          //     hintText: 'Enter your password',
+                          //     hintStyle: TextStyle(
+                          //       color: Colors.grey,
+                          //       fontSize: 15,
+                          //     ),
+                          //     prefixIcon: Icon(
+                          //       Icons.lock,
+                          //       color: Colors.blue.shade800,
+                          //     ),
+                          //     suffixIcon: Padding(
+                          //       padding: EdgeInsets.only(left: 5),
+                          //       child: IconButton(
+                          //         icon: Icon(
+                          //           _isPasswordVisible
+                          //               ? Icons.visibility_off
+                          //               : Icons.visibility,
+                          //           color: Colors.grey,
+                          //         ),
+                          //         onPressed: () {
+                          //           setState(() {
+                          //             _isPasswordVisible = !_isPasswordVisible;
+                          //           });
+                          //         },
+                          //       ),
+                          //     ),
+                          //     border: OutlineInputBorder(
+                          //       borderRadius: BorderRadius.circular(8),
+                          //     ),
+                          //     focusedBorder: OutlineInputBorder(
+                          //       borderRadius: BorderRadius.circular(8),
+                          //       borderSide: BorderSide(
+                          //         color: Colors.blue.shade800,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute<void>(
-                                      builder: (BuildContext context) =>
-                                          BaseHome(title: "LMS"),
-                                    ),
-                                  );
-                                }
-                              },
+                          Consumer<UserProvider>(
+                            builder: (context, provider, child) {
+                              return SizedBox(
+                                width: double.infinity,
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: provider.isLoading
+                                      ? null
+                                      : () async {
+                                          if (formKey.currentState!
+                                              .validate()) {
+                                            await provider.signup(
+                                              email: registerEmailController
+                                                  .text
+                                                  .trim(),
+                                              username: userNameController.text
+                                                  .trim(),
+                                            );
 
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue.shade800,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                            if (provider.error != null) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  margin: const EdgeInsets.all(
+                                                    16,
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.red.shade700,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  content: Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.error_outline,
+                                                        color: Colors.white,
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          provider.error!,
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            } else if (provider.isLoggedIn &&
+                                                context.mounted) {
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  behavior:
+                                                      SnackBarBehavior.floating,
+                                                  margin: const EdgeInsets.all(
+                                                    16,
+                                                  ),
+                                                  backgroundColor:
+                                                      Colors.green.shade600,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                  ),
+                                                  content: Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons
+                                                            .check_circle_outline,
+                                                        color: Colors.white,
+                                                      ),
+                                                      const SizedBox(width: 12),
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Account created Successfully!",
+                                                          style:
+                                                              const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 16,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  duration: const Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                ),
+                                              );
+                                              Future.delayed(
+                                                const Duration(
+                                                  milliseconds: 500,
+                                                ),
+                                                () {
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) => BaseHome(
+                                                        title: "L.M.S",
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          }
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade800,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: provider.isLoading
+                                      ? SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child:
+                                              const CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2.5,
+                                              ),
+                                        )
+                                      : const Text(
+                                          'Sign Up',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                 ),
-                              ),
-                              child: Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: fontFamily,
-                                ),
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),
