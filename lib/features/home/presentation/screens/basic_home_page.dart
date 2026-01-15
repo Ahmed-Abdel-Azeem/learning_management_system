@@ -25,12 +25,15 @@ class _BaseHomeState extends State<BaseHome> {
   ];
   @override
   Widget build(BuildContext context) {
+    final scheme = AppColors.primarySwatch;
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.title,
+          overflow: TextOverflow.visible,
           style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily),
         ),
+        elevation: 0,
       ),
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
