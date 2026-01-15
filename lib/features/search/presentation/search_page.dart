@@ -56,7 +56,6 @@ class _SearchPageState extends State<SearchPage> {
                     _controller.clear();
                     context.read<SearchCubit>().cancelSearch();
                   },
-                  child: const Text('Cancel'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(
@@ -64,6 +63,7 @@ class _SearchPageState extends State<SearchPage> {
                       vertical: 14,
                     ),
                   ),
+                  child: const Text('Cancel'),
                 ),
             ],
           ),
