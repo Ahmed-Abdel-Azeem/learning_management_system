@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
+import 'package:learning_management_system/features/home/presentation/widgets/CourseGridView.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../theme/app_theme.dart';
@@ -36,7 +37,8 @@ class _HomeBodyState extends State<HomeBody> {
             children: [
               SectionTitle(title: 'Suggested For You'),
               const SizedBox(height: 12),
-              Expanded(child: SuggestedList(courses: courses)),
+              //Expanded(child: SuggestedList(courses: courses)),
+              Expanded(child: CourseGridView()),
               const SizedBox(height: 24),
               //  SectionTitle(title: 'Browse Categories'),
               //const SizedBox(height: 16),

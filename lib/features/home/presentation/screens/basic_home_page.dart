@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/features/courses/data/api/course_api.dart';
+import 'package:learning_management_system/features/courses/presentation/courses_view.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
@@ -24,12 +26,13 @@ class BaseHome extends StatefulWidget {
 
 class _BaseHomeState extends State<BaseHome> {
   int _currentIndex = 0;
-
   // ✅ Updated screens with BlocProvider for HomeBody
   late final List<Widget> _screens = [
     BlocProvider(
       create: (_) => CourseCubit(CourseApi())..loadCourses(),
       child: HomeBody(username: 'userName'),
+      // child: HomeBody(username: 'userName'),
+      //child: CourseViewPage(),
     ),
     ProgressPage(),
     BlocProvider(
@@ -64,7 +67,10 @@ class _BaseHomeState extends State<BaseHome> {
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'progress'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'progress',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
         ],
@@ -72,4 +78,3 @@ class _BaseHomeState extends State<BaseHome> {
     );
   }
 }
-
