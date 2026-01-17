@@ -44,8 +44,12 @@ class SearchCubit extends Cubit<SearchState> {
 
   void clearCategory() {
     selectedCategory = 'All categories';
-    searchQuery = '';
-    emit(SearchCategoriesLoaded(categories));
+
+    if (searchQuery.isEmpty) {
+      emit(SearchCategoriesLoaded(categories));
+    } else {
+      _filterCourses();
+    }
   }
 
   void cancelSearch() {
@@ -97,7 +101,7 @@ class SearchCubit extends Cubit<SearchState> {
                   // author name
                   (course.author?.name?.toLowerCase().contains(searchQuery) ??
                       false) ||
-                  // access (free / paid)
+                  // access (free / paid /private)
                   (course.access.toLowerCase().contains(searchQuery) ||
                       (searchQuery == 'free' && course.finalPrice == 0)) ||
                   // price
