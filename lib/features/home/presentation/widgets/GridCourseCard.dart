@@ -64,8 +64,7 @@ class GridCourseCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(color: Colors.grey[700], fontSize: 12),
                     ),
-
-                  const Spacer(),
+                    Expanded(child: SizedBox(height: 6)),
 
                   // Footer
                   Row(

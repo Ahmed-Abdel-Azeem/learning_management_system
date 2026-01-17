@@ -54,6 +54,14 @@ class _BaseHomeState extends State<BaseHome> {
           style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily),
         ),
         elevation: 0,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [scheme.shade500, scheme.shade700, scheme.shade900],
+          begin: Alignment.topLeft,
+          end: Alignment.topRight,
+          ),
+        ),)
       ),
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(

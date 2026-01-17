@@ -45,6 +45,11 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
   );
+  static const TextStyle titleWhite = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
 
   static const TextStyle body = TextStyle(
     fontSize: 14,
@@ -57,6 +62,11 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
   );
+  static const TextStyle smallWhite = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: Colors.white70,
+  );
   static const TextStyle secondary = TextStyle(
     color: AppColors.primary,
     fontSize: 13,
@@ -68,6 +78,7 @@ class AppTextStyles {
     fontWeight: FontWeight.w600,
     color: Colors.white,
   );
+ 
 }
 
 class AppTheme {

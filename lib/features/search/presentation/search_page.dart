@@ -25,6 +25,9 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Color> categoryColors = AppColors.categoryColors;
+    var screenSize = MediaQuery.of(context).size;
+    int crossAxisCount = screenSize.width < 600 ? 1 : 2;
     return Column(
       children: [
         ///  Search Bar
@@ -111,11 +114,11 @@ class _SearchPageState extends State<SearchPage> {
                 return GridView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: state.categories.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 3 / 2,
+                    childAspectRatio: 2.5,
                   ),
                   itemBuilder: (context, index) {
                     final category = state.categories[index];
@@ -125,8 +128,8 @@ class _SearchPageState extends State<SearchPage> {
                       },
                       child: CategoryCard(
                         category,
-                        'Courses under $category',
-                        AppColors.primary,
+                        'Courses under ',
+                        categoryColors[index % categoryColors.length],
                         Icons.category,
                       ),
                     );

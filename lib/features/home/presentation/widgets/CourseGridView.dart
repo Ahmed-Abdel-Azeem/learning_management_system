@@ -10,6 +10,8 @@ class CourseGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var screenSize = MediaQuery.of(context).size;
+    int crossAxisCount = screenSize.width < 600 ? 1 : 2;
     return BlocBuilder<CourseCubit, CourseState>(
       builder: (context, state) {
         if (state is CourseLoading) {
@@ -24,11 +26,11 @@ class CourseGridView extends StatelessWidget {
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: state.courses.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              childAspectRatio: 0.68,
+              childAspectRatio: screenSize.width < 600 ? 1.2 : 0.9,
             ),
             itemBuilder: (context, index) {
               return GridCourseCard(

@@ -70,7 +70,7 @@ class HeaderSectionState extends State<HeaderSection> {
         gradient: LinearGradient(
           colors: [scheme.shade500, scheme.shade700, scheme.shade900],
           begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          end: Alignment.topRight,
         ),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
