@@ -35,7 +35,22 @@ class _HomeBodyState extends State<HomeBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionTitle(title: 'Suggested For You'),
+              Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Suggested for you',
+            style: AppTextStyles.title,
+          ),
+          // const Text(
+          //   'See All',
+          //   style: AppTextStyles.secondary,
+          // ),
+        ],
+      ),
+    ),
               const SizedBox(height: 12),
               //Expanded(child: SuggestedList(courses: courses)),
               Expanded(child: CourseGridView()),
