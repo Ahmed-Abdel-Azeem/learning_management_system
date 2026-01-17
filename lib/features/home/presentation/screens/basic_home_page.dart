@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/features/courses/data/api/course_api.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
+import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/features/search/data/repository/CoursesRepository.dart';
+import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
 
 import '../../../../theme/app_theme.dart';
 import '../../../courses/presentation/progress_page.dart';
@@ -28,7 +32,11 @@ class _BaseHomeState extends State<BaseHome> {
       child: HomeBody(username: 'userName'),
     ),
     ProgressPage(),
-    SearchPage(),
+    BlocProvider(
+      create: (_) =>
+          SearchCubit(CoursesRepository(HomeCoursesService(ApiService()))),
+      child: SearchPage(),
+    ),
     ProfilePage(title: ''),
   ];
 

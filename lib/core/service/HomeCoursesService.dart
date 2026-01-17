@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:learning_management_system/core/service/api.dart';
 
-class CourseService {
+class HomeCoursesService {
   final ApiService _apiService;
 
-  CourseService(this._apiService);
+  HomeCoursesService(this._apiService);
 
-  Future<Response> getCourses() {
+  Future<Response> getAllCourses() {
     return _apiService.dio.get('/courses');
   }
 
