@@ -12,7 +12,6 @@ import '../../../shared/Models/course.dart';
 import '../../../shared/Models/identifiers_model.dart';
 import '../widgets/category_card.dart';
 import '../widgets/course_card.dart';
-import '../widgets/section_title.dart';
 
 class HomeBody extends StatefulWidget {
   const HomeBody({super.key, required this.username});
@@ -36,21 +35,18 @@ class _HomeBodyState extends State<HomeBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Suggested for you',
-            style: AppTextStyles.title,
-          ),
-          // const Text(
-          //   'See All',
-          //   style: AppTextStyles.secondary,
-          // ),
-        ],
-      ),
-    ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Suggested for you', style: AppTextStyles.title),
+                    // const Text(
+                    //   'See All',
+                    //   style: AppTextStyles.secondary,
+                    // ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
               //Expanded(child: SuggestedList(courses: courses)),
               Expanded(child: CourseGridView()),
