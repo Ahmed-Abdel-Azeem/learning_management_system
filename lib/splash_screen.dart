@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen>
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 500),
-          pageBuilder: (_, __, ___) => const BaseHome(title: 'SCA Learning Management System '),
+          pageBuilder: (_, __, ___) => const BaseHome(title: 'SCA Learning Management System'),
           // pageBuilder: (_, __, ___) => BlocProvider(
           //   create: (context) => NewsListCubit(),
           //   child: const NewsListScreen(),
