@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/features/courses/data/api/course_api.dart';
+import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 
 import '../../../../theme/app_theme.dart';
 import '../../../courses/presentation/progress_page.dart';
@@ -17,12 +20,18 @@ class BaseHome extends StatefulWidget {
 
 class _BaseHomeState extends State<BaseHome> {
   int _currentIndex = 0;
+
+  // ✅ Updated screens with BlocProvider for HomeBody
   late final List<Widget> _screens = [
-    HomeBody(username: 'userName'),
+    BlocProvider(
+      create: (_) => CourseCubit(CourseApi())..loadCourses(),
+      child: HomeBody(username: 'userName'),
+    ),
     ProgressPage(),
     SearchPage(),
     ProfilePage(title: ''),
   ];
+
   @override
   Widget build(BuildContext context) {
     final scheme = AppColors.primarySwatch;
@@ -35,10 +44,7 @@ class _BaseHomeState extends State<BaseHome> {
         ),
         elevation: 0,
       ),
-      body: Container(
-        height: double.infinity,
-        child: IndexedStack(index: _currentIndex, children: _screens),
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: AppColors.primary,
@@ -47,17 +53,10 @@ class _BaseHomeState extends State<BaseHome> {
         unselectedItemColor: AppColors.textSecondary,
         unselectedIconTheme: IconThemeData(color: AppColors.textSecondary),
         selectedIconTheme: IconThemeData(color: AppColors.primary),
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'progress',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'progress'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
         ],
@@ -65,3 +64,4 @@ class _BaseHomeState extends State<BaseHome> {
     );
   }
 }
+

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:learning_management_system/features/courses/data/constants/api_constants.dart';
-import 'package:learning_management_system/features/courses/data/models/course_model.dart';
+import 'package:learning_management_system/features/shared/Models/course.dart';
 
 class CourseApi{
   final Dio dio = Dio(BaseOptions(

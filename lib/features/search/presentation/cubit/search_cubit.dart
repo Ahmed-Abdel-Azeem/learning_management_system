@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
-import '../../../courses/data/models/course_model.dart';
+import 'package:learning_management_system/features/shared/Models/course.dart';
 
 class SearchCubit extends Cubit<CourseState> {
   final List<Course> _allCourses = [];

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:learning_management_system/features/courses/data/models/course_model.dart';
+import 'package:learning_management_system/features/shared/Models/course.dart';
 
 sealed class CourseState extends Equatable {
   const CourseState();
