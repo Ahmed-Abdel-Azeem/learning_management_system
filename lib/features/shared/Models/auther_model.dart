@@ -7,4 +7,6 @@ class Author {
   factory Author.fromJson(Map<String, dynamic> json) {
     return Author(name: json['name'], image: json['image']);
   }
+
+  Map<String, dynamic> toJson() => {'name': name, 'image': image};
 }

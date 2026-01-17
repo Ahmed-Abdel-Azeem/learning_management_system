@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 //import 'features/home/presentation/screens/basic_home_page.dart';
 import 'splash_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(create: (_) => UserProvider(), child: const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -15,10 +19,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme:  AppTheme.lightTheme,
+      title: 'SCA LMS',
+      theme: AppTheme.lightTheme,
       home: const SplashScreen(),
+      builder: (context, child) {
+        return Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child,
+        );
+      },
     );
   }
 }
-

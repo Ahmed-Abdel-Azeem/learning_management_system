@@ -1,138 +1,259 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:learning_management_system/features/courses/presentation/courses_view.dart';
-import '../../../courses/data/api/course_api.dart';
-import '../../../courses/presentation/cubit/course_cubit.dart';
-import '../../../courses/presentation/cubit/course_state.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
-class HomeBody extends StatelessWidget {
+import '../../../../theme/app_theme.dart';
+import '../../../shared/Models/auther_model.dart';
+import '../../../shared/Models/course.dart';
+import '../../../shared/Models/identifiers_model.dart';
+import '../widgets/category_card.dart';
+import '../widgets/course_card.dart';
+import '../widgets/section_title.dart';
+
+class HomeBody extends StatefulWidget {
   const HomeBody({super.key, required this.username});
   final String username;
 
   @override
+  State<HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<HomeBody> {
+  List<Course> courses = [];
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => CourseCubit(CourseApi())..loadCourses(),
-      child: CustomScrollView(
-        slivers: [
-          // ===== Collapsible Top Section =====
-          SliverAppBar(
-            pinned: true,
-            expandedHeight: 180,
-            backgroundColor: Colors.blue,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: Text(
-                'Hello $username',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+    final provider = context.read<UserProvider>();
+    return Column(
+      children: [
+        HeaderSection(username: provider.user?.username ?? ''),
+        const SizedBox(height: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SectionTitle(title: 'Suggested For You'),
+              const SizedBox(height: 12),
+              Expanded(child: SuggestedList(courses: courses)),
+              const SizedBox(height: 24),
+              //  SectionTitle(title: 'Browse Categories'),
+              //const SizedBox(height: 16),
+              // CategoriesGrid(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ================= HEADER =================
+class HeaderSection extends StatefulWidget {
+  final String username;
+  const HeaderSection({super.key, required this.username});
+
+  @override
+  State<HeaderSection> createState() => HeaderSectionState();
+}
+
+class HeaderSectionState extends State<HeaderSection> {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = AppColors.primarySwatch;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [scheme.shade500, scheme.shade700, scheme.shade900],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hello, ${widget.username}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Continue your learning journey',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ],
                 ),
               ),
-              background: Container(
-                color: Colors.blue,
-                // Optional: add decoration or image
+              CircleAvatar(
+                backgroundColor: Colors.white24,
+                child: Icon(Icons.notifications_none, color: Colors.white),
               ),
-            ),
+            ],
           ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 16),
-          ),
-
-          // ===== Sticky Suggested Title =====
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _StickyHeaderDelegate(
-              child: Container(
-                color: Colors.grey[100],
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Suggested for you',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 8),
-          ),
-
-          // ===== Courses Grid =====
-          BlocBuilder<CourseCubit, CourseState>(
-            builder: (context, state) {
-              if (state is CourseLoading) {
-                return const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              if (state is CourseFailure) {
-                return SliverFillRemaining(
-                  child: Center(child: Text(state.errorMessage)),
-                );
-              }
-
-              if (state is CourseLoaded) {
-                return SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 0.68,
-                    ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final course = state.courses[index];
-                        return CourseCard(course: course);
-                      },
-                      childCount: state.courses.length,
-                    ),
-                  ),
-                );
-              }
-
-              return const SliverToBoxAdapter(child: SizedBox());
-            },
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 16),
-          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
   }
 }
 
-// ===== Sticky Header Delegate =====
-class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
+// ================= SUGGESTED LIST =================
+class SuggestedList extends StatelessWidget {
+  final List<Course> courses;
+  final List<Color> categoryColors = AppColors.categoryColors;
 
-  _StickyHeaderDelegate({required this.child});
+  const SuggestedList({super.key, required this.courses});
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return child;
+  Widget build(BuildContext context) {
+    List<Course> demoCourses = [
+      Course(
+        id: '1',
+        title: 'Mobile App Design Masterclass',
+        categories: ['UI/UX Design'],
+        originalPrice: 19.0,
+        discountPrice: 19.0,
+        finalPrice: 0,
+        dripFeed: 'dripFeed',
+        identifiers: Identifiers(),
+        access: "free",
+        courseImage:
+            "https://lwfiles.mycourse.app/6860dbb646480f63e57aae11-public/3c6468b1ecda2ff53c61bde9629c04f4.png",
+        created: 1751181311,
+        modified: 1763361102,
+        author: Author(name: 'Auther name'),
+      ),
+      Course(
+        id: '1',
+        title: 'Machine Learning Fundamentals',
+        categories: ['AI & ML'],
+        originalPrice: 19.0,
+        discountPrice: 19.0,
+        finalPrice: 0,
+        dripFeed: 'dripFeed',
+        identifiers: Identifiers(),
+        access: "free",
+        created: 1751181311,
+        modified: 1763361102,
+        author: Author(name: 'Auther name'),
+      ),
+      Course(
+        id: '1',
+        title: 'Python for Data Analysis',
+        categories: ['Data Science'],
+        originalPrice: 19.0,
+        discountPrice: 19.0,
+        finalPrice: 0,
+        dripFeed: 'dripFeed',
+        identifiers: Identifiers(),
+        access: "free",
+        created: 1751181311,
+        modified: 1763361102,
+        author: Author(name: 'Auther name'),
+      ),
+      Course(
+        id: '1',
+        title: 'Digital Marketing Strategy 2024',
+        categories: ['Marketing'],
+        originalPrice: 19.0,
+        discountPrice: 19.0,
+        finalPrice: 0,
+        dripFeed: 'dripFeed',
+        identifiers: Identifiers(),
+        access: "free",
+        created: 1751181311,
+        modified: 1763361102,
+        author: Author(name: 'Auther name'),
+      ),
+      // Course(id: '1', title: 'Python for Data Analysis', categories: ['Data Science'],
+      //     originalPrice: 19.0, discountPrice: 19.0,
+      //     finalPrice: 0, dripFeed: 'dripFeed',
+      //     identifiers:Identifiers() , access: "free",
+      //     created:  1751181311, modified: 1763361102, author:Author(name: 'Auther name')),
+      // Course(id: '1', title: 'Machine Learning Fundamentals', categories: ['AI & ML'],
+      //     originalPrice: 19.0, discountPrice: 19.0,
+      //     finalPrice: 0, dripFeed: 'dripFeed',
+      //     identifiers:Identifiers() , access: "free",
+      //     created:  1751181311, modified: 1763361102,author:Author(name: 'Auther name')),
+      Course(
+        id: '1',
+        title: 'Python for Data Analysis',
+        categories: ['Data Science'],
+        originalPrice: 19.0,
+        discountPrice: 19.0,
+        finalPrice: 0,
+        dripFeed: 'dripFeed',
+        identifiers: Identifiers(),
+        access: "free",
+        created: 1751181311,
+        modified: 1763361102,
+        author: Author(name: 'Auther name'),
+      ),
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ListView.builder(
+        itemCount: demoCourses.length,
+        shrinkWrap: true,
+        // physics: const NeverScrollableScrollPhysics(),// Optional: specifies the total number of items
+        itemBuilder: (BuildContext context, int index) {
+          return CourseCard(
+            title: demoCourses[index].title,
+            category: demoCourses[index].categories.join(', '),
+            author: demoCourses[index].author!.name!,
+            color: categoryColors[index % categoryColors.length],
+            image:
+                demoCourses[index].courseImage ??
+                'https://www.suezcanal.gov.eg/Style%20Library/Images/logo.png',
+          );
+        },
+      ),
+    );
   }
+}
+
+// ================= CATEGORIES =================
+class CategoriesGrid extends StatelessWidget {
+  const CategoriesGrid({super.key});
 
   @override
-  double get maxExtent => 50;
-
-  @override
-  double get minExtent => 50;
-
-  @override
-  bool shouldRebuild(covariant _StickyHeaderDelegate oldDelegate) {
-    return oldDelegate.child != child;
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.4,
+        children: const [
+          CategoryCard('Development', '150 courses', Colors.blue, Icons.code),
+          CategoryCard('Design', '89 courses', Colors.purple, Icons.palette),
+          CategoryCard(
+            'Business',
+            '124 courses',
+            Colors.green,
+            Icons.trending_up,
+          ),
+          CategoryCard(
+            'Photography',
+            '67 courses',
+            Colors.orange,
+            Icons.camera_alt,
+          ),
+        ],
+      ),
+    );
   }
 }
