@@ -4,7 +4,6 @@ import 'package:learning_management_system/features/home/presentation/widgets/ca
 import 'package:learning_management_system/features/home/presentation/widgets/course_card.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_state.dart';
-import 'package:learning_management_system/features/shared/Models/course.dart';
 import '../../../../theme/app_theme.dart';
 
 class SearchPage extends StatefulWidget {
@@ -20,17 +19,15 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // init data
     context.read<SearchCubit>().init();
-    _controller.addListener(() {
-      setState(() {});
-    });
+    _controller.addListener(() => setState(() {}));
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        ///  Search Bar
         Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -43,6 +40,15 @@ class _SearchPageState extends State<SearchPage> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    suffixIcon: _controller.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              _controller.clear();
+                              context.read<SearchCubit>().setSearchQuery('');
+                            },
+                          )
+                        : null,
                   ),
                   onChanged: (value) {
                     context.read<SearchCubit>().setSearchQuery(value);
@@ -50,33 +56,58 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
               const SizedBox(width: 8),
+
+              /// Cancel Button
+              /// Show only when there is text in the search field
               if (_controller.text.isNotEmpty)
-                ElevatedButton(
+                TextButton(
                   onPressed: () {
                     _controller.clear();
                     context.read<SearchCubit>().cancelSearch();
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                  ),
                   child: const Text('Cancel'),
                 ),
             ],
           ),
         ),
 
+        ///  Selected Category Chip
+        BlocBuilder<SearchCubit, SearchState>(
+          builder: (context, state) {
+            if (state is SearchCourseLoaded &&
+                !state.selectedCategory.toLowerCase().contains('all')) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Chip(
+                    label: Text(state.selectedCategory),
+                    deleteIcon: const Icon(Icons.close),
+                    onDeleted: () {
+                      context.read<SearchCubit>().clearCategory();
+                    },
+                  ),
+                ),
+              );
+            }
+            return const SizedBox();
+          },
+        ),
+
+        ///  Content
         Expanded(
           child: BlocBuilder<SearchCubit, SearchState>(
             builder: (context, state) {
               if (state is SearchLoading) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (state is SearchError) {
+              }
+
+              if (state is SearchError) {
                 return Center(child: Text(state.message));
-              } else if (state is SearchCategoriesLoaded) {
+              }
+
+              /// Categories View
+              if (state is SearchCategoriesLoaded) {
                 return GridView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: state.categories.length,
@@ -101,16 +132,19 @@ class _SearchPageState extends State<SearchPage> {
                     );
                   },
                 );
-              } else if (state is SearchCourseLoaded) {
-                final courses = state.courses;
-                if (courses.isEmpty) {
+              }
+
+              /// Courses View
+              if (state is SearchCourseLoaded) {
+                if (state.courses.isEmpty) {
                   return const Center(child: Text('No courses found'));
                 }
+
                 return ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: courses.length,
+                  itemCount: state.courses.length,
                   itemBuilder: (context, index) {
-                    var course = courses[index];
+                    final course = state.courses[index];
                     return CourseCard(
                       title: course.title,
                       category: course.categories.join(', '),
@@ -121,6 +155,7 @@ class _SearchPageState extends State<SearchPage> {
                   },
                 );
               }
+
               return const SizedBox();
             },
           ),

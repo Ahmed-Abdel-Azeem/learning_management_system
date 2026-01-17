@@ -36,16 +36,26 @@ class SearchCubit extends Cubit<SearchState> {
 
   void setSearchQuery(String query) {
     searchQuery = query.trim().toLowerCase();
-    if (searchQuery.isEmpty) {
+    /* if (searchQuery.isEmpty) {
       selectedCategory = 'All categories';
-    }
+    }*/
     _filterCourses();
+  }
+
+  void clearCategory() {
+    selectedCategory = 'All categories';
+    searchQuery = '';
+    emit(SearchCategoriesLoaded(categories));
   }
 
   void cancelSearch() {
     searchQuery = '';
-    selectedCategory = 'All categories';
-    emit(SearchCategoriesLoaded(categories));
+
+    if (selectedCategory.toLowerCase().contains('all')) {
+      emit(SearchCategoriesLoaded(categories));
+    } else {
+      _filterCourses();
+    }
   }
 
   /// Search Criteria
@@ -58,38 +68,52 @@ class SearchCubit extends Cubit<SearchState> {
     final priceQuery = num.tryParse(searchQuery);
     List<Course> filtered = allCourses;
     if (filtered.isEmpty) return;
+
     emit(SearchLoading());
+
     try {
+      // check if all categories
+      final bool isAllCategories = selectedCategory.toLowerCase().contains(
+        'all',
+      );
+
       //filter by category
-      if (!selectedCategory.toLowerCase().contains('all')) {
+      if (!isAllCategories) {
         filtered = filtered
             .where(
               (course) => course.categories.any(
-                (c) => c.toLowerCase().contains(selectedCategory.toLowerCase()),
+                (c) => c.toLowerCase() == selectedCategory.toLowerCase(),
               ),
             )
             .toList();
       }
+
       //fileter by search query
       if (searchQuery.isNotEmpty) {
         filtered = filtered
             .where(
               (course) =>
                   course.title.toLowerCase().contains(searchQuery) ||
-                  course.categories.any(
-                    (c) => c.toLowerCase().contains(searchQuery),
-                  ) ||
+                  // author name
                   (course.author?.name?.toLowerCase().contains(searchQuery) ??
                       false) ||
+                  // access (free / paid)
                   (course.access.toLowerCase().contains(searchQuery) ||
                       (searchQuery == 'free' && course.finalPrice == 0)) ||
+                  // price
                   (priceQuery != null &&
                       (course.finalPrice == priceQuery ||
                           course.originalPrice == priceQuery ||
-                          course.discountPrice == priceQuery)),
+                          course.discountPrice == priceQuery)) ||
+                  // category (only if all categories)
+                  (isAllCategories &&
+                      course.categories.any(
+                        (c) => c.toLowerCase().contains(searchQuery),
+                      )),
             )
             .toList();
       }
+
       emit(
         SearchCourseLoaded(
           courses: filtered,
