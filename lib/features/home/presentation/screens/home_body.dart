@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/core/providers/user_provider.dart';
+import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
+import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../theme/app_theme.dart';
@@ -116,108 +119,56 @@ class SuggestedList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Course> demoCourses = [
-      Course(
-        id: '1',
-        title: 'Mobile App Design Masterclass',
-        categories: ['UI/UX Design'],
-        originalPrice: 19.0,
-        discountPrice: 19.0,
-        finalPrice: 0,
-        dripFeed: 'dripFeed',
-        identifiers: Identifiers(),
-        access: "free",
-        courseImage:
-            "https://lwfiles.mycourse.app/6860dbb646480f63e57aae11-public/3c6468b1ecda2ff53c61bde9629c04f4.png",
-        created: 1751181311,
-        modified: 1763361102,
-        author: Author(name: 'Auther name'),
-      ),
-      Course(
-        id: '1',
-        title: 'Machine Learning Fundamentals',
-        categories: ['AI & ML'],
-        originalPrice: 19.0,
-        discountPrice: 19.0,
-        finalPrice: 0,
-        dripFeed: 'dripFeed',
-        identifiers: Identifiers(),
-        access: "free",
-        created: 1751181311,
-        modified: 1763361102,
-        author: Author(name: 'Auther name'),
-      ),
-      Course(
-        id: '1',
-        title: 'Python for Data Analysis',
-        categories: ['Data Science'],
-        originalPrice: 19.0,
-        discountPrice: 19.0,
-        finalPrice: 0,
-        dripFeed: 'dripFeed',
-        identifiers: Identifiers(),
-        access: "free",
-        created: 1751181311,
-        modified: 1763361102,
-        author: Author(name: 'Auther name'),
-      ),
-      Course(
-        id: '1',
-        title: 'Digital Marketing Strategy 2024',
-        categories: ['Marketing'],
-        originalPrice: 19.0,
-        discountPrice: 19.0,
-        finalPrice: 0,
-        dripFeed: 'dripFeed',
-        identifiers: Identifiers(),
-        access: "free",
-        created: 1751181311,
-        modified: 1763361102,
-        author: Author(name: 'Auther name'),
-      ),
-      // Course(id: '1', title: 'Python for Data Analysis', categories: ['Data Science'],
-      //     originalPrice: 19.0, discountPrice: 19.0,
-      //     finalPrice: 0, dripFeed: 'dripFeed',
-      //     identifiers:Identifiers() , access: "free",
-      //     created:  1751181311, modified: 1763361102, author:Author(name: 'Auther name')),
-      // Course(id: '1', title: 'Machine Learning Fundamentals', categories: ['AI & ML'],
-      //     originalPrice: 19.0, discountPrice: 19.0,
-      //     finalPrice: 0, dripFeed: 'dripFeed',
-      //     identifiers:Identifiers() , access: "free",
-      //     created:  1751181311, modified: 1763361102,author:Author(name: 'Auther name')),
-      Course(
-        id: '1',
-        title: 'Python for Data Analysis',
-        categories: ['Data Science'],
-        originalPrice: 19.0,
-        discountPrice: 19.0,
-        finalPrice: 0,
-        dripFeed: 'dripFeed',
-        identifiers: Identifiers(),
-        access: "free",
-        created: 1751181311,
-        modified: 1763361102,
-        author: Author(name: 'Auther name'),
-      ),
-    ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ListView.builder(
-        itemCount: demoCourses.length,
-        shrinkWrap: true,
-        // physics: const NeverScrollableScrollPhysics(),// Optional: specifies the total number of items
-        itemBuilder: (BuildContext context, int index) {
-          return CourseCard(
-            title: demoCourses[index].title,
-            category: demoCourses[index].categories.join(', '),
-            author: demoCourses[index].author!.name!,
-            color: categoryColors[index % categoryColors.length],
-            image:
-                demoCourses[index].courseImage ??
-                'https://www.suezcanal.gov.eg/Style%20Library/Images/logo.png',
+    return BlocBuilder<CourseCubit, CourseState>(
+      builder: (context, state) {
+        List<Course> demoCourses = [];
+
+        if (state is CourseLoaded) {
+          demoCourses = state.courses;
+        }
+
+        if (state is CourseLoading) {
+          return const Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: CircularProgressIndicator()),
           );
-        },
-      ),
+        }
+
+        if (state is CourseFailure) {
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Center(child: Text(state.errorMessage)),
+          );
+        }
+
+        if (demoCourses.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: Text('No courses available')),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: ListView.builder(
+            itemCount: demoCourses.length,
+            physics: const AlwaysScrollableScrollPhysics(), // allow scrolling
+            shrinkWrap: false, // take available space
+            itemBuilder: (BuildContext context, int index) {
+              final course = demoCourses[index];
+              return CourseCard(
+                title: course.title,
+                category: course.categories.join(', '),
+                author: course.author?.name ?? 'Unknown',
+                color: categoryColors[index % categoryColors.length],
+                image:
+                    course.courseImage ??
+                    'https://www.suezcanal.gov.eg/Style%20Library/Images/logo.png',
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

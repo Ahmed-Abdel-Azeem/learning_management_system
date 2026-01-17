@@ -2,23 +2,19 @@ import 'package:flutter/material.dart';
 import '../../../../theme/app_theme.dart';
 
 class CourseCard extends StatelessWidget {
-  final String title, category, author;// duration ;
+  final String title, category, author; // duration ;
   final Color? color;
   final String? image;
 
-
-
-
-   CourseCard({super.key,
+  const CourseCard({
+    super.key,
     required this.title,
     required this.category,
     required this.author,
-   // required this.duration,
+    // required this.duration,
     this.color,
     this.image,
-
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +36,14 @@ class CourseCard extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-                //edit here image from api
-              child: Image.network(image??'https://www.suezcanal.gov.eg/Style%20Library/Images/logo.png',
+              //edit here image from api
+              child: Image.network(
+                image ??
+                    'https://www.suezcanal.gov.eg/Style%20Library/Images/logo.png',
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Icon(Icons.school, size: 40,),
-                        ),),
+                errorBuilder: (_, __, ___) => Icon(Icons.school, size: 40),
+              ),
+            ),
           ),
 
           const SizedBox(width: 12),
@@ -52,20 +51,26 @@ class CourseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(category,
-                    style: TextStyle(
-                        fontSize: 12, color: color?? AppColors.primary)),
+                Text(
+                  category,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color ?? AppColors.primary,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    Text(author,
-                        style: AppTextStyles.small),
+                    Text(author, style: AppTextStyles.small),
                     // const SizedBox(width: 8),
                     // Text(duration,
                     //     style: AppTextStyles.small),
@@ -73,8 +78,9 @@ class CourseCard extends StatelessWidget {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
-  }}
+  }
+}
