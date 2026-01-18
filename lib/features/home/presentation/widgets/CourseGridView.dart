@@ -25,13 +25,15 @@ class CourseGridView extends StatelessWidget {
 
         if (state is CourseLoaded) {
           return GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.all(16),
             itemCount: state.courses.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              childAspectRatio: screenSize.width < 600 ? 1.2 : 0.9,
+              childAspectRatio: screenSize.width < 600 ? 1.1 : 0.9,
             ),
             itemBuilder: (context, index) {
               return GridCourseCard(

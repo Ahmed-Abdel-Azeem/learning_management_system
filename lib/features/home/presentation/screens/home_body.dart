@@ -26,13 +26,15 @@ class _HomeBodyState extends State<HomeBody> {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<UserProvider>();
+
     return Column(
       children: [
         HeaderSection(username: provider.user?.username ?? ''),
         const SizedBox(height: 16),
+
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
+            padding: EdgeInsets.zero,
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -40,20 +42,14 @@ class _HomeBodyState extends State<HomeBody> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Suggested for you', style: AppTextStyles.title),
-                    // const Text(
-                    //   'See All',
-                    //   style: AppTextStyles.secondary,
-                    // ),
                   ],
                 ),
               ),
               const SizedBox(height: 12),
-              //Expanded(child: SuggestedList(courses: courses)),
-              Expanded(child: CourseGridView()),
+
+              CourseGridView(),
+
               const SizedBox(height: 24),
-              //  SectionTitle(title: 'Browse Categories'),
-              //const SizedBox(height: 16),
-              // CategoriesGrid(),
             ],
           ),
         ),
@@ -117,105 +113,6 @@ class HeaderSectionState extends State<HeaderSection> {
             ],
           ),
           const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-}
-
-// ================= SUGGESTED LIST =================
-class SuggestedList extends StatelessWidget {
-  final List<Course> courses;
-  final List<Color> categoryColors = AppColors.categoryColors;
-
-  const SuggestedList({super.key, required this.courses});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<CourseCubit, CourseState>(
-      builder: (context, state) {
-        List<Course> demoCourses = [];
-
-        if (state is CourseLoaded) {
-          demoCourses = state.courses;
-        }
-
-        if (state is CourseLoading) {
-          return const Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (state is CourseFailure) {
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: Center(child: Text(state.errorMessage)),
-          );
-        }
-
-        if (demoCourses.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: Text('No courses available')),
-          );
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: ListView.builder(
-            itemCount: demoCourses.length,
-            physics: const AlwaysScrollableScrollPhysics(), // allow scrolling
-            shrinkWrap: false, // take available space
-            itemBuilder: (BuildContext context, int index) {
-              final course = demoCourses[index];
-              return CourseCard(
-                title: course.title,
-                category: course.categories.join(', '),
-                author: course.author?.name ?? 'Unknown',
-                color: categoryColors[index % categoryColors.length],
-                image:
-                    course.courseImage ??
-                    'https://www.suezcanal.gov.eg/Style%20Library/Images/logo.png',
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ================= CATEGORIES =================
-class CategoriesGrid extends StatelessWidget {
-  const CategoriesGrid({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.4,
-        children: const [
-          CategoryCard('Development', '150 courses', Colors.blue, Icons.code),
-          CategoryCard('Design', '89 courses', Colors.purple, Icons.palette),
-          CategoryCard(
-            'Business',
-            '124 courses',
-            Colors.green,
-            Icons.trending_up,
-          ),
-          CategoryCard(
-            'Photography',
-            '67 courses',
-            Colors.orange,
-            Icons.camera_alt,
-          ),
         ],
       ),
     );
