@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/features/courses/presentation/course_details_page.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/GridCourseCard.dart';
@@ -26,7 +27,7 @@ class CourseGridView extends StatelessWidget {
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: state.courses.length,
-            gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
@@ -34,7 +35,17 @@ class CourseGridView extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               return GridCourseCard(
-                course  : state.courses[index]);
+                course: state.courses[index],
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          CourseDetailsPage(course: state.courses[index]),
+                    ),
+                  );
+                },
+              );
             },
           );
         }
