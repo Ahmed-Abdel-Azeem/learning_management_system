@@ -19,7 +19,7 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   final formKey = GlobalKey<FormState>();
 
-  bool _isPasswordVisible = false;
+  // bool _isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {

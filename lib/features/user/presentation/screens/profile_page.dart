@@ -86,13 +86,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Image.asset(
                             'lib/assets/images/profile.jpg',
                             fit: BoxFit.fill,
-                            width: 100,
-                            height: 100,
+                            width: 120,
+                            height: 120,
                             errorBuilder: (_, __, ___) =>
                                 Icon(Icons.school, size: 40),
                           ),
                         ),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 8),
                         Text(
                           user.username ?? '',
                           style: TextStyle(
@@ -114,7 +114,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 2),
                         ListTile(
                           leading: CircleAvatar(
                             backgroundColor: Colors.blue.shade100,
@@ -134,34 +134,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           subtitle: Text(
                             user.username ?? '',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                        ),
-
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade100,
-                            child: Icon(
-                              Icons.alternate_email,
-                              color: Colors.blue.shade900,
-                            ),
-                          ),
-                          title: Text(
-                            "UserId",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                          subtitle: Text(
-                            user.id,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.black,
