@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
+import 'package:learning_management_system/features/home/presentation/widgets/CourseGridView.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../theme/app_theme.dart';
@@ -11,7 +12,6 @@ import '../../../shared/Models/course.dart';
 import '../../../shared/Models/identifiers_model.dart';
 import '../widgets/category_card.dart';
 import '../widgets/course_card.dart';
-import '../widgets/section_title.dart';
 
 class HomeBody extends StatefulWidget {
   const HomeBody({super.key, required this.username});
@@ -34,9 +34,22 @@ class _HomeBodyState extends State<HomeBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionTitle(title: 'Suggested For You'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Suggested for you', style: AppTextStyles.title),
+                    // const Text(
+                    //   'See All',
+                    //   style: AppTextStyles.secondary,
+                    // ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
-              Expanded(child: SuggestedList(courses: courses)),
+              //Expanded(child: SuggestedList(courses: courses)),
+              Expanded(child: CourseGridView()),
               const SizedBox(height: 24),
               //  SectionTitle(title: 'Browse Categories'),
               //const SizedBox(height: 16),
@@ -68,7 +81,7 @@ class HeaderSectionState extends State<HeaderSection> {
         gradient: LinearGradient(
           colors: [scheme.shade500, scheme.shade700, scheme.shade900],
           begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          end: Alignment.topRight,
         ),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),

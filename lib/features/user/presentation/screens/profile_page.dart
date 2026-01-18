@@ -56,13 +56,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final provider = context.read<UserProvider>();
     final UserModel user = provider.user!;
+    final scheme = AppColors.primarySwatch;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue.shade900, Colors.blue.shade400],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            colors: [scheme.shade500, scheme.shade700, scheme.shade900],
+          begin: Alignment.topLeft,
+          end: Alignment.topRight,
           ),
         ),
         child: Center(
