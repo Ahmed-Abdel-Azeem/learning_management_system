@@ -13,7 +13,7 @@ class AuthorInfo extends StatelessWidget {
       children: [
         CircleAvatar(backgroundImage: NetworkImage(author.image!), radius: 30),
         const SizedBox(width: 12),
-        Text(label, style: AppTextStyles.title),
+        Text(label ?? "", style: AppTextStyles.title),
       ],
     );
   }

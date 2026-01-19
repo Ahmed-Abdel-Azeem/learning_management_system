@@ -1,11 +1,11 @@
 import 'package:bloc/bloc.dart';
-import 'package:learning_management_system/core/service/CourseService.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/features/shared/Models/course.dart';
 
 part 'course_data_state.dart';
 
 class CourseDataCubit extends Cubit<CourseDataState> {
-  final CourseService service;
+  final HomeCoursesService service;
   CourseDataCubit(this.service) : super(CourseDataLoading());
 
   Future<void> loadingCourse(String courseId) async {

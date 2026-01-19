@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:learning_management_system/core/service/CourseService.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_analytic_cubit.dart';
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_content_cubit.dart';
@@ -94,12 +94,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
 
                         // 4. Author Info
                         BlocProvider(
-                          create: (context) =>
-                              CourseAnalyticCubit(CourseService(ApiService()))
-                                ..loadAnalytic(widget.courseId),
+                          create: (context) => CourseAnalyticCubit(
+                            HomeCoursesService(ApiService()),
+                          )..loadAnalytic(widget.courseId),
                           child: Analytic(
                             author: state.course.author!,
-                            label: state.course.label!,
+                            label:
+                                (state.course.label ??
+                                (state.course.author?.name ?? '')),
                           ),
                         ),
                         const SizedBox(height: 15),
@@ -118,13 +120,15 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                           child: TabBarView(
                             children: [
                               Overview(
-                                desc: state.course.description!,
+                                desc:
+                                    state.course.description ??
+                                    'No description available',
                                 categories: state.course.categories,
                               ),
 
                               BlocProvider(
                                 create: (context) => CourseContentCubit(
-                                  CourseService(ApiService()),
+                                  HomeCoursesService(ApiService()),
                                 )..loadContent(state.course.id),
                                 child: Contents(),
                               ),

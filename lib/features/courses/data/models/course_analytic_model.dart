@@ -3,8 +3,8 @@ class CourseAnalyticModel {
   final int videos;
   final int learningUnits;
   final int videoTime;
-  final int avgScoreRate;
-  final double successRate;
+  final num avgScoreRate;
+  final num successRate;
   final int totalStudyTime;
   final int avgTimeToFinish;
   final int socialInteractions;

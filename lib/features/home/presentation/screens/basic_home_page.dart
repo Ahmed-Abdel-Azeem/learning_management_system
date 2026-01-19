@@ -6,11 +6,12 @@ import 'package:learning_management_system/features/courses/presentation/courses
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/features/courses/presentation/screens/user_progress_screen.dart';
 import 'package:learning_management_system/features/search/data/repository/CoursesRepository.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
 
 import '../../../../theme/app_theme.dart';
-import '../../../courses/presentation/progress_page.dart';
+//import '../../../courses/presentation/ProgressPage.dart';
 import '../../../search/presentation/search_page.dart';
 import '../../../user/presentation/screens/profile_page.dart';
 import 'home_body.dart';
@@ -54,14 +55,15 @@ class _BaseHomeState extends State<BaseHome> {
           style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily),
         ),
         elevation: 0,
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [scheme.shade500, scheme.shade700, scheme.shade900],
-          begin: Alignment.topLeft,
-          end: Alignment.topRight,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [scheme.shade500, scheme.shade700, scheme.shade900],
+              begin: Alignment.topLeft,
+              end: Alignment.topRight,
+            ),
           ),
-        ),)
+        ),
       ),
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(

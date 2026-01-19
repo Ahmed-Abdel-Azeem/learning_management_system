@@ -40,12 +40,12 @@ class Analytic extends StatelessWidget {
 Widget _buildCourseStats(CourseAnalyticModel courseAnalytic) {
   return Row(
     children: [
-      const Icon(Icons.star, color: Colors.amber, size: 20),
-      const SizedBox(width: 4),
-      const Text("4.8", style: TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(width: 4),
-      Text("(2.4k)", style: AppTextStyles.small),
-      const SizedBox(width: 16),
+      // const Icon(Icons.star, color: Colors.amber, size: 20),
+      // const SizedBox(width: 4),
+      // const Text("4.8", style: TextStyle(fontWeight: FontWeight.bold)),
+      // const SizedBox(width: 4),
+      // Text("(2.4k)", style: AppTextStyles.small),
+      // const SizedBox(width: 16),
       Icon(Icons.people_alt_rounded, color: AppColors.primary, size: 20),
       const SizedBox(width: 4),
       Text("${courseAnalytic.students} students", style: AppTextStyles.small),

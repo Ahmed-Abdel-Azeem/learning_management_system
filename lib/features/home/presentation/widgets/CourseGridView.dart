@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
+import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/course_details_page.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
+import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/GridCourseCard.dart';
 import 'course_card.dart';
 
@@ -43,7 +47,15 @@ class CourseGridView extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) =>
-                          CourseDetailsPage(course: state.courses[index]),
+                          //CourseDetailsPage(course: state.courses[index]),
+                          BlocProvider(
+                            create: (context) => CourseDataCubit(
+                              HomeCoursesService(ApiService()),
+                            ),
+                            child: CourseDetailScreen(
+                              courseId: state.courses[index].id,
+                            ),
+                          ),
                     ),
                   );
                 },
