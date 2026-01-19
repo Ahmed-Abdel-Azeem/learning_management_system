@@ -52,7 +52,7 @@ class LoginPage extends StatelessWidget {
                           ),
                           SizedBox(height: 14),
                           Text(
-                            'LearnHub',
+                            'Login ',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 30,

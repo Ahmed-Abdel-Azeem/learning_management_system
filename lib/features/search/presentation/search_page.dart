@@ -27,7 +27,8 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final List<Color> categoryColors = AppColors.categoryColors;
     var screenSize = MediaQuery.of(context).size;
-    int crossAxisCount = screenSize.width < 600 ? 1 : 2;
+    double childAspectRatio = screenSize.width < 600 ? 1.2 : 1.1;
+    int crossAxisCount = screenSize.width < 600 ? 2 : 4;
     return Column(
       children: [
         ///  Search Bar
@@ -118,7 +119,7 @@ class _SearchPageState extends State<SearchPage> {
                     crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 2.5,
+                    childAspectRatio: childAspectRatio,
                   ),
                   itemBuilder: (context, index) {
                     final category = state.categories[index];

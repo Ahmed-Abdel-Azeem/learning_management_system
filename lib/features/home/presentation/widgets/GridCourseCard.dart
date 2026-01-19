@@ -60,17 +60,20 @@ class GridCourseCard extends StatelessWidget {
 
                     const SizedBox(height: 6),
 
-                    // Description
-                    if (course.description != null &&
-                        course.description!.isNotEmpty)
+                    // Author
+                   if (course.author != null)
                       Text(
-                        course.description!,
-                        maxLines: 3,
+                        course.author!.name ?? 'Author',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                      ),
+                      )else
+                        Text(
+                          'Author',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                        ),
 
-                    const SizedBox(height: 6),
+                    Expanded(child: const SizedBox(height: 6)),
 
                     // Footer
                     Row(

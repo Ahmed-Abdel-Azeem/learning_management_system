@@ -14,7 +14,7 @@ class CourseGridView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
-    int crossAxisCount = screenSize.width < 600 ? 1 : 2;
+int crossAxisCount = screenSize.width < 600 ? 2: 3;
     return BlocBuilder<CourseCubit, CourseState>(
       builder: (context, state) {
         if (state is CourseLoading) {
@@ -35,7 +35,7 @@ class CourseGridView extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: 16,
               crossAxisSpacing: 16,
-              childAspectRatio: screenSize.width < 600 ? 1.1 : 0.9,
+              childAspectRatio: screenSize.width < 600 ? 0.6: 0.8,
             ),
             itemBuilder: (context, index) {
               return GridCourseCard(
