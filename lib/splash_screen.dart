@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:learning_management_system/features/home/presentation/screens/basic_home_page.dart';
 import 'package:learning_management_system/features/user/presentation/screens/login_page.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
 

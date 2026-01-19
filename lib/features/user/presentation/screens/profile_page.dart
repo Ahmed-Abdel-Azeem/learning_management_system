@@ -88,7 +88,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<UserProvider>();
-    final UserModel user = provider.user!;
+    final UserModel? user = provider.user;
     final scheme = AppColors.primarySwatch;
 
     return Scaffold(
@@ -147,19 +147,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                 backgroundColor: _isEditing
                                     ? Colors.green
                                     : Colors.blue,
-                                child: _isSaving
-                                    ? const SizedBox(
+                                child: !_isSaving
+                                    ? Icon(
+                                        _isEditing ? Icons.check : Icons.edit,
+                                        size: 16,
+                                        color: Colors.white,
+                                      )
+                                    : const SizedBox(
                                         width: 14,
                                         height: 14,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           color: Colors.white,
                                         ),
-                                      )
-                                    : Icon(
-                                        _isEditing ? Icons.check : Icons.edit,
-                                        size: 16,
-                                        color: Colors.white,
                                       ),
                               ),
                             ),
@@ -185,7 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             )
                           : Text(
-                              user.username ?? '',
+                              user?.username ?? '',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -223,7 +223,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         subtitle: Text(
-                          user.username ?? '',
+                          user?.username ?? '',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black,
@@ -248,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         subtitle: Text(
-                          user.email,
+                          user?.email ?? '',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.black,

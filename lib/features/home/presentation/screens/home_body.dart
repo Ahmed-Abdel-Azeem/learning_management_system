@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/core/providers/user_provider.dart';
-import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
-import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/CourseGridView.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../theme/app_theme.dart';
-import '../../../shared/Models/auther_model.dart';
 import '../../../shared/Models/course.dart';
-import '../../../shared/Models/identifiers_model.dart';
-import '../widgets/category_card.dart';
-import '../widgets/course_card.dart';
 
 class HomeBody extends StatefulWidget {
   const HomeBody({super.key, required this.username});

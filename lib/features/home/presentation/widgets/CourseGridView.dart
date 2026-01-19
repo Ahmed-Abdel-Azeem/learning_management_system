@@ -3,12 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
-import 'package:learning_management_system/features/courses/presentation/course_details_page.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_state.dart';
 import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/GridCourseCard.dart';
-import 'course_card.dart';
 
 class CourseGridView extends StatelessWidget {
   const CourseGridView({super.key});

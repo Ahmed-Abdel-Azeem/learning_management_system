@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/features/courses/data/api/course_api.dart';
-import 'package:learning_management_system/features/courses/presentation/courses_view.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
