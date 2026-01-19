@@ -80,7 +80,7 @@ class GridCourseCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: onTap,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF0A2E6D),
                             minimumSize: const Size(0, 36),

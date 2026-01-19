@@ -45,43 +45,54 @@ class _BaseHomeState extends State<BaseHome> {
   @override
   Widget build(BuildContext context) {
     final scheme = AppColors.primarySwatch;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.title,
-          overflow: TextOverflow.visible,
-          style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily),
-        ),
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [scheme.shade500, scheme.shade700, scheme.shade900],
-              begin: Alignment.topLeft,
-              end: Alignment.topRight,
+    return  PopScope(
+      canPop: _currentIndex == 0, // Allow pop only on home tab
+      // ignore: deprecated_member_use
+      onPopInvoked: (didPop) {
+        if (!didPop && _currentIndex != 0) {
+          setState(() {
+            _currentIndex = 0; // Navigate to home tab
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            widget.title,
+            overflow: TextOverflow.visible,
+            style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily),
+          ),
+          elevation: 0,
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [scheme.shade500, scheme.shade700, scheme.shade900],
+                begin: Alignment.topLeft,
+                end: Alignment.topRight,
+              ),
             ),
           ),
         ),
-      ),
-      body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: AppColors.primary,
-        backgroundColor: AppColors.border,
-        showUnselectedLabels: true,
-        unselectedItemColor: AppColors.textSecondary,
-        unselectedIconTheme: IconThemeData(color: AppColors.textSecondary),
-        selectedIconTheme: IconThemeData(color: AppColors.primary),
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'progress',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
-        ],
+        body: IndexedStack(index: _currentIndex, children: _screens),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          selectedItemColor: AppColors.primary,
+          backgroundColor: AppColors.border,
+          showUnselectedLabels: true,
+          unselectedItemColor: AppColors.textSecondary,
+          unselectedIconTheme: IconThemeData(color: AppColors.textSecondary),
+          selectedIconTheme: IconThemeData(color: AppColors.primary),
+          onTap: (index) => setState(() => _currentIndex = index),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart),
+              label: 'progress',
+            ),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
+          ],
+        ),
       ),
     );
   }
