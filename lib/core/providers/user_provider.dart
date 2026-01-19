@@ -49,6 +49,28 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  /// ---------------- UPDATE USERNAME ----------------
+  Future<void> updateUsername(String username) async {
+    if (_user == null) return;
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updatedUser = await _userService.updateUsername(
+        _user!.email,
+        username,
+      );
+      _user = updatedUser;
+    } catch (e) {
+      _error = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   /// ---------------- LOGOUT ----------------
   void logout() {
     _user = null;

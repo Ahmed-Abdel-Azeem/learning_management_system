@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.title});
-
   final String title;
 
   @override
@@ -23,10 +22,26 @@ class _ProfilePageState extends State<ProfilePage> {
   CourseProgressResponse? courses;
   bool _loading = true;
 
+  bool _isEditing = false;
+  bool _isSaving = false;
+  late TextEditingController _usernameController;
+  late FocusNode _usernameFocusNode;
+
   @override
   void initState() {
     super.initState();
     _loadUserCourses();
+
+    final user = context.read<UserProvider>().user;
+    _usernameController = TextEditingController(text: user?.username ?? '');
+    _usernameFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _usernameFocusNode.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserCourses() async {
@@ -45,16 +60,34 @@ class _ProfilePageState extends State<ProfilePage> {
         courses = res;
         _loading = false;
       });
-    } catch (e, st) {
-      debugPrint('$st');
+    } catch (_) {
       if (!mounted) return;
       setState(() => _loading = false);
     }
   }
 
+  Future<void> _saveUsername() async {
+    setState(() => _isSaving = true);
+
+    try {
+      final provider = context.read<UserProvider>();
+      await provider.updateUsername(_usernameController.text);
+
+      setState(() {
+        _isEditing = false;
+      });
+    } catch (_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update username')),
+      );
+    } finally {
+      setState(() => _isSaving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.read<UserProvider>();
+    final provider = context.watch<UserProvider>();
     final UserModel user = provider.user!;
     final scheme = AppColors.primarySwatch;
 
@@ -63,335 +96,385 @@ class _ProfilePageState extends State<ProfilePage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [scheme.shade500, scheme.shade700, scheme.shade900],
-          begin: Alignment.topLeft,
-          end: Alignment.topRight,
+            begin: Alignment.topLeft,
+            end: Alignment.topRight,
           ),
         ),
         child: Center(
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  margin: EdgeInsets.all(16),
-                  padding: EdgeInsets.all(20),
+                  margin: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(32),
                   ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Stack(
+                        children: [
+                          ClipOval(
+                            child: Image.asset(
+                              'lib/assets/images/profile.jpg',
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: InkWell(
+                              onTap: _isSaving
+                                  ? null
+                                  : () {
+                                      if (_isEditing) {
+                                        _saveUsername();
+                                      } else {
+                                        setState(() => _isEditing = true);
 
-                  child: Form(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ClipOval(
-                          child: Image.asset(
-                            'lib/assets/images/profile.jpg',
-                            fit: BoxFit.fill,
-                            width: 120,
-                            height: 120,
-                            errorBuilder: (_, __, ___) =>
-                                Icon(Icons.school, size: 40),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          user.username ?? '',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: fontFamily,
-                          ),
-                        ),
-                        SizedBox(height: 32),
+                                        Future.delayed(Duration.zero, () {
+                                          _usernameFocusNode.requestFocus();
+                                        });
+                                      }
+                                    },
 
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            ' Personal information',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade100,
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.blue.shade900,
-                            ),
-                          ),
-                          title: Text(
-                            "Username",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                          subtitle: Text(
-                            user.username ?? '',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                        ),
-
-                        ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade100,
-                            child: Icon(
-                              Icons.mail,
-                              color: Colors.blue.shade900,
-                            ),
-                          ),
-                          title: Text(
-                            "Email",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                          subtitle: Text(
-                            user.email,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 18),
-                        Container(
-                          width: double.infinity,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade800,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    "Learning stats",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: fontFamily,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        Text(
-                                          _loading
-                                              ? '...'
-                                              : '${courses?.data.length ?? 0}',
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Courses',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.white,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 40,
-                                      child: VerticalDivider(
-                                        color: Colors.white,
-                                        thickness: 1,
-                                        width: 24,
-                                      ),
-                                    ),
-
-                                    Column(
-                                      children: [
-                                        Text(
-                                          _loading
-                                              ? '...'
-                                              : totalLearningTimeHM(courses),
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Watch Time',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.white,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 40,
-                                      child: VerticalDivider(
-                                        color: Colors.white,
-                                        thickness: 1,
-                                        width: 24,
-                                      ),
-                                    ),
-
-                                    Column(
-                                      children: [
-                                        Text(
-                                          _loading
-                                              ? '...'
-                                              : '${completedCount(courses)}',
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'Completed',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.white,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        Consumer<UserProvider>(
-                          builder: (context, provider, child) {
-                            return SizedBox(
-                              width: double.infinity,
-                              height: 48,
-                              child: ElevatedButton(
-                                onPressed: provider.isLoading
-                                    ? null
-                                    : () {
-                                        provider.logout();
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute<void>(
-                                            builder: (BuildContext context) =>
-                                                LoginPage(),
-                                          ),
-                                        );
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            behavior: SnackBarBehavior.floating,
-                                            margin: const EdgeInsets.all(16),
-                                            backgroundColor:
-                                                Colors.green.shade600,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            content: Row(
-                                              children: [
-                                                const Icon(
-                                                  Icons.check_circle_outline,
-                                                  color: Colors.white,
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
-                                                  child: Text(
-                                                    "Logged out successfully!",
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            duration: const Duration(
-                                              seconds: 3,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: provider.isLoading
+                              child: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: _isEditing
+                                    ? Colors.green
+                                    : Colors.blue,
+                                child: _isSaving
                                     ? const SizedBox(
-                                        width: 22,
-                                        height: 22,
+                                        width: 14,
+                                        height: 14,
                                         child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
+                                          strokeWidth: 2,
                                           color: Colors.white,
                                         ),
                                       )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            FontAwesomeIcons
-                                                .arrowRightFromBracket,
-                                          ),
-                                          SizedBox(width: 6),
-                                          Text(
-                                            'Logout',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: fontFamily,
-                                            ),
-                                          ),
-                                        ],
+                                    : Icon(
+                                        _isEditing ? Icons.check : Icons.edit,
+                                        size: 16,
+                                        color: Colors.white,
                                       ),
                               ),
-                            );
-                          },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      _isEditing
+                          ? TextField(
+                              controller: _usernameController,
+                              focusNode: _usernameFocusNode,
+                              cursorColor: Colors.green,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: fontFamily,
+                              ),
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: UnderlineInputBorder(),
+                              ),
+                            )
+                          : Text(
+                              user.username ?? '',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: fontFamily,
+                              ),
+                            ),
+                      const SizedBox(height: 32),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          ' Personal information',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: fontFamily,
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 2),
+                      ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.blue.shade900,
+                          ),
+                        ),
+                        title: const Text(
+                          "Username",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: fontFamily,
+                          ),
+                        ),
+                        subtitle: Text(
+                          user.username ?? '',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: fontFamily,
+                          ),
+                        ),
+                      ),
+
+                      ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blue.shade100,
+                          child: Icon(Icons.mail, color: Colors.blue.shade900),
+                        ),
+                        title: Text(
+                          "Email",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: fontFamily,
+                          ),
+                        ),
+                        subtitle: Text(
+                          user.email,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: fontFamily,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 18),
+                      Container(
+                        width: double.infinity,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade800,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Learning stats",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: fontFamily,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Text(
+                                        _loading
+                                            ? '...'
+                                            : '${courses?.data.length ?? 0}',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: fontFamily,
+                                        ),
+                                      ),
+
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Courses',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                          fontFamily: fontFamily,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 40,
+                                    child: VerticalDivider(
+                                      color: Colors.white,
+                                      thickness: 1,
+                                      width: 24,
+                                    ),
+                                  ),
+
+                                  Column(
+                                    children: [
+                                      Text(
+                                        _loading
+                                            ? '...'
+                                            : totalLearningTimeHM(courses),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: fontFamily,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Watch Time',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                          fontFamily: fontFamily,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 40,
+                                    child: VerticalDivider(
+                                      color: Colors.white,
+                                      thickness: 1,
+                                      width: 24,
+                                    ),
+                                  ),
+
+                                  Column(
+                                    children: [
+                                      Text(
+                                        _loading
+                                            ? '...'
+                                            : '${completedCount(courses)}',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontFamily: fontFamily,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Completed',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                          fontFamily: fontFamily,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Consumer<UserProvider>(
+                        builder: (context, provider, child) {
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed: provider.isLoading
+                                  ? null
+                                  : () {
+                                      provider.logout();
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute<void>(
+                                          builder: (BuildContext context) =>
+                                              LoginPage(),
+                                        ),
+                                      );
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          behavior: SnackBarBehavior.floating,
+                                          margin: const EdgeInsets.all(16),
+                                          backgroundColor:
+                                              Colors.green.shade600,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          content: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.check_circle_outline,
+                                                color: Colors.white,
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Text(
+                                                  "Logged out successfully!",
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          duration: const Duration(seconds: 3),
+                                        ),
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: provider.isLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          FontAwesomeIcons
+                                              .arrowRightFromBracket,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          'Logout',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: fontFamily,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -405,9 +488,8 @@ class _ProfilePageState extends State<ProfilePage> {
   int completedCount(CourseProgressResponse? response) {
     if (response != null) {
       return response.data.where((c) => c.status == 'completed').length;
-    } else {
-      return 0;
     }
+    return 0;
   }
 
   String totalLearningTimeHM(CourseProgressResponse? response) {
@@ -417,11 +499,8 @@ class _ProfilePageState extends State<ProfilePage> {
       0,
       (sum, c) => sum + c.timeOnCourse,
     );
-
     final duration = Duration(seconds: totalSeconds);
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
 
-    return '${hours}h ${minutes}m';
+    return '${duration.inHours}h ${duration.inMinutes % 60}m';
   }
 }

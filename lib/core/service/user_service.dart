@@ -53,6 +53,27 @@ class UserService {
     }
   }
 
+  /// 🔹 Update username
+  Future<UserModel> updateUsername(String email, String username) async {
+    try {
+      final response = await _apiService.dio.put(
+        '/users/$email',
+        data: {"email": email, "username": username},
+      );
+
+      return UserModel.fromJson(response.data);
+    } on DioException catch (e) {
+      debugPrint('🔴 DioException type: ${e.type}');
+      debugPrint('🔴 status: ${e.response?.statusCode}');
+      debugPrint('🔴 response: ${e.response?.data}');
+      throw Exception("Failed to update username");
+    } catch (e, st) {
+      debugPrint('🔴 Unexpected: $e');
+      debugPrint('$st');
+      rethrow;
+    }
+  }
+
   Future<CourseProgressResponse> getUserCourses(String email) async {
     try {
       final response = await _apiService.dio.get('/users/$email/progress');
