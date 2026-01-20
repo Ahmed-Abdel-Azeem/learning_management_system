@@ -284,7 +284,8 @@ class _SignupPageState extends State<SignupPage> {
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (_) => BaseHome(
-                                                        title: "L.M.S",
+                                                        title:
+                                                            "Suez Canal Authority L.M.S",
                                                       ),
                                                     ),
                                                   );

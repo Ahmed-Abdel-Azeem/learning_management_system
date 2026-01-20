@@ -80,6 +80,8 @@ class HeaderSectionState extends State<HeaderSection> {
         children: [
           Row(
             children: [
+              Image.asset('lib/assets/images/logo1.png', height: 60, width: 90),
+              SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +90,7 @@ class HeaderSectionState extends State<HeaderSection> {
                       'Hello, ${widget.username}',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -99,10 +101,6 @@ class HeaderSectionState extends State<HeaderSection> {
                     ),
                   ],
                 ),
-              ),
-              CircleAvatar(
-                backgroundColor: Colors.white24,
-                child: Icon(Icons.notifications_none, color: Colors.white),
               ),
             ],
           ),

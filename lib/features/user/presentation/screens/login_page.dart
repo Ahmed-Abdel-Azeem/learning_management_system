@@ -155,9 +155,8 @@ class LoginPage extends StatelessWidget {
                                                   margin: const EdgeInsets.all(
                                                     16,
                                                   ),
-                                                  backgroundColor: Colors
-                                                      .green
-                                                      .shade600,
+                                                  backgroundColor:
+                                                      Colors.green.shade600,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
@@ -196,7 +195,8 @@ class LoginPage extends StatelessWidget {
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (_) => BaseHome(
-                                                        title: "L.M.S",
+                                                        title:
+                                                            "Suez Canal Authority L.M.S",
                                                       ),
                                                     ),
                                                   );
