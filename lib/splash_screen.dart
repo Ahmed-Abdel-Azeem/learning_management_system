@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:learning_management_system/core/constants/globals.dart';
 import 'package:learning_management_system/features/user/presentation/screens/login_page.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
 
@@ -69,46 +70,23 @@ class _SplashScreenState extends State<SplashScreen>
               crossAxisAlignment: CrossAxisAlignment.center,
               //mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: scheme.shade500.withValues(alpha: 0.12),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'lib/assets/images/logo.png',
-                        fit: BoxFit.fill,
-                        width: 150,
-                        height: 150,
-                        errorBuilder: (_, __, ___) =>
-                            Icon(Icons.school, size: 40),
-                      ),
-                    ),
-                    //  Icon(
-                    //   Icons.school,
-                    //   color: Colors.white,
-                    //   size: 44,
-                    // ),
-                  ),
+                Image.asset(
+                  'lib/assets/images/logo1.png',
+                  fit: BoxFit.fill,
+                  height: 130,
+                  errorBuilder: (_, __, ___) => Icon(Icons.school, size: 40),
                 ),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.all(10),
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.7,
+                    width: double.infinity,
                     child: Text(
-                      'SCA Learning Management System ',
+                      appName,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 23,
+                        fontWeight: FontWeight.w600,
                         letterSpacing: 0.2,
                       ),
                       textAlign: TextAlign.center,
@@ -120,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen>
                   'Continue your learning journey',
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.85),
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
