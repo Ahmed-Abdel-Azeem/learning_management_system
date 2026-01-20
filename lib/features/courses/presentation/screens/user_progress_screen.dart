@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:learning_management_system/core/providers/user_provider.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/core/service/user_service.dart';
+import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
+import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/shared/Models/course_progress_response.dart';
 import 'package:learning_management_system/features/shared/Models/course.dart';
 import 'package:learning_management_system/features/shared/Models/identifiers_model.dart';
@@ -602,7 +606,11 @@ class _ProgressPageState extends State<ProgressPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CourseDetailsPage(course: courseObj),
+                    builder: (context) => BlocProvider(
+                      create: (context) =>
+                          CourseDataCubit(HomeCoursesService(ApiService())),
+                      child: CourseDetailScreen(courseId: courseObj.id),
+                    ),
                   ),
                 );
               },
