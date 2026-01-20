@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learning_management_system/features/shared/Models/course.dart';
+import 'package:learning_management_system/theme/app_theme.dart';
+import 'dart:math';
 
 class GridCourseCard extends StatelessWidget {
   final Course course;
@@ -9,6 +11,12 @@ class GridCourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+double randomDoubleOneDecimal() {
+  final random = Random();
+  double value = 3 + random.nextDouble() * 2; // 3.0 → 5.0
+  return double.parse(value.toStringAsFixed(1));
+}
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -72,28 +80,55 @@ class GridCourseCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: Colors.grey[700], fontSize: 12),
                         ),
-
+                        //nomber of participants
+                    const SizedBox(height: 4),
+                      // if (course.participants != null)
+                      // Text(
+                      //   course.participants ?? 'Author',
+                      //   overflow: TextOverflow.ellipsis,
+                      //   style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                      // )else
+                        Text(
+                          '1200 participants',
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.secondary,
+                        ),
                     Expanded(child: const SizedBox(height: 6)),
 
                     // Footer
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ElevatedButton(
-                          onPressed: onTap,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0A2E6D),
-                            minimumSize: const Size(0, 36),
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                        // ElevatedButton(
+                        //   onPressed: onTap,
+                        //   style: ElevatedButton.styleFrom(
+                        //     backgroundColor: const Color(0xFF0A2E6D),
+                        //     minimumSize: const Size(0, 36),
+                        //     padding: const EdgeInsets.symmetric(horizontal: 10),
+                        //     shape: RoundedRectangleBorder(
+                        //       borderRadius: BorderRadius.circular(8),
+                        //     ),
+                        //   ),
+                        //   child: const Text(
+                        //     'Register',
+                        //     style: TextStyle(color: Colors.white, fontSize: 12),
+                        //   ),
+                        // ),
+                       Row(
+                         children: [
+                           Icon(Icons.star, color: Colors.amber, size: 16),
+                           Text( randomDoubleOneDecimal().toString(),
+                          // course.rating != null
+                          //     ? course.rating!.toStringAsFixed(1)
+                          //     : '0.0',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
                           ),
-                          child: const Text(
-                            'Register',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ),
+                        ), 
+                         ],
+                       ),
+                        
                         Text(
                           course.access.toLowerCase() == 'free'
                               ? 'Free'

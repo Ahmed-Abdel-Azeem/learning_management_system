@@ -32,10 +32,6 @@ class _SplashScreenState extends State<SplashScreen>
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 500),
           pageBuilder: (_, __, ___) => LoginPage(),
-          // pageBuilder: (_, __, ___) => BlocProvider(
-          //   create: (context) => NewsListCubit(),
-          //   child: const NewsListScreen(),
-          // ),
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
         ),
@@ -91,11 +87,6 @@ class _SplashScreenState extends State<SplashScreen>
                             Icon(Icons.school, size: 40),
                       ),
                     ),
-                    //  Icon(
-                    //   Icons.school,
-                    //   color: Colors.white,
-                    //   size: 44,
-                    // ),
                   ),
                 ),
                 const SizedBox(height: 20),
