@@ -4,4 +4,4 @@ var userNameController = TextEditingController();
 var passwordController = TextEditingController();
 var loginEmailController = TextEditingController();
 var registerEmailController = TextEditingController();
-String appName = 'Suez Canal Authority LMS';
+String appName = 'Suez Canal Authority L.M.S';
