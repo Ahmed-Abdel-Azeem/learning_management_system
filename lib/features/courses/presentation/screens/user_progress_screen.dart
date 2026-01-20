@@ -17,20 +17,45 @@ class ProgressPage extends StatefulWidget {
   const ProgressPage({super.key});
 
   @override
-  State<ProgressPage> createState() => _ProgressPageState();
+  State<ProgressPage> createState() => ProgressPageState();
 }
 
-class _ProgressPageState extends State<ProgressPage> {
+class ProgressPageState extends State<ProgressPage>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   String selectedFilter = 'All Courses';
   final UserService _userService = UserService(ApiService());
 
   CourseProgressResponse? _progressData;
   bool _isLoading = false;
   String? _errorMessage;
+  bool _isFirstLoad = true;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _fetchProgressData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh when app comes to foreground
+    if (state == AppLifecycleState.resumed) {
+      _fetchProgressData();
+    }
+  }
+
+  // Public method to refresh data from outside
+  void refreshData() {
     _fetchProgressData();
   }
 
@@ -69,253 +94,262 @@ class _ProgressPageState extends State<ProgressPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header Section
-              Container(
-                margin: EdgeInsets.all(5),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      AppColors.primarySwatch[700]!,
-                      AppColors.primarySwatch[400]!,
-                    ],
+      body: RefreshIndicator(
+        onRefresh: _fetchProgressData,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                // Header Section
+                Container(
+                  margin: EdgeInsets.all(5),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        AppColors.primarySwatch[700]!,
+                        AppColors.primarySwatch[400]!,
+                      ],
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
                   ),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title and notification icon
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'My Progress',
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Continue your learning journey',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.primarySwatch[50]!,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.notifications_none,
-                              color: Colors.white,
-                              size: 22,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 28),
-                      // Progress Circle
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(80, 216, 220, 223),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title and notification icon
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Total Progress',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Color(0xFFE8EFFF),
-                                    fontWeight: FontWeight.w400,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'My Progress',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      letterSpacing: 0.3,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _progressData != null
-                                      ? '${_calculateAverageProgress()}%'
-                                      : '0%',
-                                  style: const TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                    height: 1.1,
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Continue your learning journey',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.primarySwatch[50]!,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            SizedBox(
-                              width: 90,
-                              height: 90,
-                              child: CustomPaint(
-                                painter: CircularProgressPainter(
-                                  progress: _progressData != null
-                                      ? _calculateAverageProgress() / 100
-                                      : 0.0,
-                                  backgroundColor: Colors.white.withOpacity(
-                                    0.25,
-                                  ),
-                                  progressColor: Colors.white,
-                                  strokeWidth: 10,
-                                ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.25),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.notifications_none,
+                                color: Colors.white,
+                                size: 22,
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 28),
+                        // Progress Circle
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(80, 216, 220, 223),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Total Progress',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Color(0xFFE8EFFF),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _progressData != null
+                                        ? '${_calculateAverageProgress()}%'
+                                        : '0%',
+                                    style: const TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      height: 1.1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 90,
+                                height: 90,
+                                child: CustomPaint(
+                                  painter: CircularProgressPainter(
+                                    progress: _progressData != null
+                                        ? _calculateAverageProgress() / 100
+                                        : 0.0,
+                                    backgroundColor: Colors.white.withOpacity(
+                                      0.25,
+                                    ),
+                                    progressColor: Colors.white,
+                                    strokeWidth: 10,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                // Stats Cards
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 26.0),
+                  child: Row(
+                    children: [
+                      _buildStatCard(
+                        Icons.menu_book_rounded,
+                        _progressData != null
+                            ? '${_progressData!.data.length}'
+                            : '0',
+                        'Courses',
+                        AppColors.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildStatCard(
+                        Icons.access_time,
+                        _progressData != null
+                            ? '${_calculateTotalTime()}h'
+                            : '0h',
+                        'Watched',
+                        AppColors.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildStatCard(
+                        Icons.check_circle_outline,
+                        _progressData != null
+                            ? '${_countCompletedCourses()}'
+                            : '0',
+                        'Completed',
+                        AppColors.primary,
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 15),
-              // Stats Cards
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 26.0),
-                child: Row(
-                  children: [
-                    _buildStatCard(
-                      Icons.menu_book_rounded,
-                      _progressData != null
-                          ? '${_progressData!.data.length}'
-                          : '0',
-                      'Courses',
-                      AppColors.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    _buildStatCard(
-                      Icons.access_time,
-                      _progressData != null
-                          ? '${_calculateTotalTime()}h'
-                          : '0h',
-                      'Watched',
-                      AppColors.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    _buildStatCard(
-                      Icons.check_circle_outline,
-                      _progressData != null
-                          ? '${_countCompletedCourses()}'
-                          : '0',
-                      'Completed',
-                      AppColors.primary,
-                    ),
-                  ],
+                const SizedBox(height: 30),
+                // Filter Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 26.0),
+                  child: Row(
+                    children: [
+                      _buildFilterButton('All Courses'),
+                      const SizedBox(width: 8),
+                      _buildFilterButton('In Progress'),
+                      const SizedBox(width: 8),
+                      _buildFilterButton('Completed'),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 30),
-              // Filter Buttons
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 26.0),
-                child: Row(
-                  children: [
-                    _buildFilterButton('All Courses'),
-                    const SizedBox(width: 8),
-                    _buildFilterButton('In Progress'),
-                    const SizedBox(width: 8),
-                    _buildFilterButton('Completed'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 15),
-              // Course List - Dynamic from API
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 26.0),
-                child: _progressData != null && _progressData!.data.isNotEmpty
-                    ? Column(
-                        children: [
-                          ...List.generate(_progressData!.data.length, (index) {
-                            final course = _progressData!.data[index];
-                            final filteredByStatus = _shouldShowCourse(course);
+                const SizedBox(height: 15),
+                // Course List - Dynamic from API
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 26.0),
+                  child: _progressData != null && _progressData!.data.isNotEmpty
+                      ? Column(
+                          children: [
+                            ...List.generate(_progressData!.data.length, (
+                              index,
+                            ) {
+                              final course = _progressData!.data[index];
+                              final filteredByStatus = _shouldShowCourse(
+                                course,
+                              );
 
-                            if (!filteredByStatus) {
-                              return const SizedBox.shrink();
-                            }
+                              if (!filteredByStatus) {
+                                return const SizedBox.shrink();
+                              }
 
-                            return Column(
-                              children: [
-                                _buildCourseCard(
-                                  course: course,
-                                  title: course.courseId,
-                                  lessons: '${course.totalUnits} units',
-                                  duration: _formatDuration(
-                                    course.timeOnCourse,
+                              return Column(
+                                children: [
+                                  _buildCourseCard(
+                                    course: course,
+                                    title: course.courseId,
+                                    lessons: '${course.totalUnits} units',
+                                    duration: _formatDuration(
+                                      course.timeOnCourse,
+                                    ),
+                                    progress: course.totalUnits > 0
+                                        ? course.completedUnits /
+                                              course.totalUnits
+                                        : 0.0,
+                                    icon: _getRandomIcon(index),
+                                    iconColor: _getRandomColor(index),
+                                    isCompleted: course.status == 'completed',
                                   ),
-                                  progress: course.totalUnits > 0
-                                      ? course.completedUnits /
-                                            course.totalUnits
-                                      : 0.0,
-                                  icon: _getRandomIcon(index),
-                                  iconColor: _getRandomColor(index),
-                                  isCompleted: course.status == 'completed',
-                                ),
-                                const SizedBox(height: 16),
-                              ],
-                            );
-                          }),
-                          const SizedBox(height: 80),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          const SizedBox(height: 40),
-                          Icon(
-                            Icons.school_outlined,
-                            size: 64,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _isLoading
-                                ? 'Loading courses...'
-                                : 'No courses found',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                            }),
+                            const SizedBox(height: 80),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            const SizedBox(height: 40),
+                            Icon(
+                              Icons.school_outlined,
+                              size: 64,
+                              color: Colors.grey.shade400,
                             ),
-                          ),
-                          const SizedBox(height: 80),
-                        ],
-                      ),
-              ),
-            ],
+                            const SizedBox(height: 16),
+                            Text(
+                              _isLoading
+                                  ? 'Loading courses...'
+                                  : 'No courses found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 80),
+                          ],
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -587,7 +621,7 @@ class _ProgressPageState extends State<ProgressPage> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Create a Course object from progress data
                 final courseObj = Course(
                   id: course.courseId,
@@ -603,7 +637,7 @@ class _ProgressPageState extends State<ProgressPage> {
                   modified: 0,
                 );
 
-                Navigator.push(
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider(
@@ -613,6 +647,9 @@ class _ProgressPageState extends State<ProgressPage> {
                     ),
                   ),
                 );
+
+                // Refresh data when returning from course detail
+                _fetchProgressData();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isCompleted
