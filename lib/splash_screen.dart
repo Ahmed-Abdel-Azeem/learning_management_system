@@ -27,16 +27,12 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // Navigate after a short delay
-    Timer(const Duration(milliseconds: 1500), () {
+    Timer(const Duration(milliseconds: 2000), () {
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 500),
           pageBuilder: (_, __, ___) => LoginPage(),
-          // pageBuilder: (_, __, ___) => BlocProvider(
-          //   create: (context) => NewsListCubit(),
-          //   child: const NewsListScreen(),
-          // ),
           transitionsBuilder: (_, anim, __, child) =>
               FadeTransition(opacity: anim, child: child),
         ),
@@ -82,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen>
                   child: SizedBox(
                     width: double.infinity,
                     child: Text(
-                      appName,
+                      "Learning Management System",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 23,

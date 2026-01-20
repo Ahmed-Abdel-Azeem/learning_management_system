@@ -195,8 +195,7 @@ class LoginPage extends StatelessWidget {
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (_) => BaseHome(
-                                                        title:
-                                                            "Suez Canal Authority L.M.S",
+                                                        title: appName,
                                                       ),
                                                     ),
                                                   );
