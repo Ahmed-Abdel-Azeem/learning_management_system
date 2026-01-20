@@ -60,7 +60,7 @@ Widget _buildInfoGrid(CourseAnalyticModel courseAnalytic) {
       _infoCard(
         Icons.access_time_filled,
         "Total Duration",
-        courseAnalytic.totalStudyTime.toString(),
+        formatTime(courseAnalytic.totalStudyTime),
       ),
       _infoCard(
         Icons.library_books,
@@ -101,4 +101,12 @@ Widget _infoCard(IconData icon, String title, String value) {
       ),
     ),
   );
+}
+
+String formatTime(int totalStudyTime) {
+  final duration = Duration(seconds: totalStudyTime);
+  final hours = duration.inHours;
+  final minutes = duration.inMinutes.remainder(60);
+  // final secs = duration.inSeconds.remainder(60);
+  return '${hours}h ${minutes}m ';
 }

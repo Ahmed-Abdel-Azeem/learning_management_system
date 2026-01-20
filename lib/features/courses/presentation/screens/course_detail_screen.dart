@@ -6,8 +6,10 @@ import 'package:learning_management_system/features/courses/data/cubits/cubit/co
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_content_cubit.dart';
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/analytic.dart';
+import 'package:learning_management_system/features/courses/presentation/widgets/authorInfo.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/contents.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/overView.dart';
+import 'package:learning_management_system/features/shared/Models/auther_model.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
 
 class CourseDetailScreen extends StatefulWidget {
@@ -32,9 +34,28 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         bottomNavigationBar: Material(
           color: AppColors.primary,
           child: InkWell(
-            onTap: () {
-              print(widget.courseId);
-              // context.read<CourseDataCubit>().enrollToCourse(widget.courseId);
+            onTap: () async {
+              //  print(widget.courseId);
+              //context.read<CourseDataCubit>().enrollToCourse(widget.courseId);
+              await HomeCoursesService(ApiService())
+                  .enrollToCourse(productId: widget.courseId)
+                  .then((value) {
+                    showAppDialog(
+                      context: context,
+                      title: 'Enrollment Successful',
+                      message:
+                          'You have been enrolled to the course successfully.',
+                      type: AppDialogType.success,
+                    );
+                  })
+                  .catchError((error) {
+                    showAppDialog(
+                      context: context,
+                      title: 'Enrollment Failed',
+                      message: error.toString(),
+                      type: AppDialogType.error,
+                    );
+                  });
             },
             splashColor: Colors.white.withValues(alpha: 0.2),
             highlightColor: Colors.transparent,
@@ -62,12 +83,28 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
               // Here you can access the course data using state.course
               return ListView(
                 children: [
-                  Image.network(
-                    state.course.courseImage!,
-                    fit: BoxFit.cover,
-                    height: 250,
-                    width: double.infinity,
-                  ),
+                  // Image.network(
+                  //   state.course.courseImage!,//to be moidified if no image
+                  //   fit: BoxFit.cover,
+                  //   height: 250,
+                  //   width: double.infinity,
+                  // ),
+                  state.course.courseImage != null &&
+                          state.course.courseImage!.isNotEmpty
+                      ? Image.network(
+                          state.course.courseImage!,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: const Icon(
+                              Icons.image,
+                              size: 40,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ),
 
                   Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -98,7 +135,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             HomeCoursesService(ApiService()),
                           )..loadAnalytic(widget.courseId),
                           child: Analytic(
-                            author: state.course.author!,
+                            author: //state.course.author!
+                                state.course.author ?? Author(name: 'Unknown'),
                             label:
                                 (state.course.label ??
                                 (state.course.author?.name ?? '')),
@@ -148,3 +186,71 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     );
   }
 }
+
+void showAppDialog({
+  required BuildContext context,
+  required String title,
+  required String message,
+  required AppDialogType type,
+}) {
+  IconData icon;
+  Color color;
+
+  switch (type) {
+    case AppDialogType.success:
+      icon = Icons.check_circle_outline;
+      color = Colors.green;
+      break;
+    case AppDialogType.error:
+      icon = Icons.error_outline;
+      color = Colors.redAccent;
+      break;
+    case AppDialogType.warning:
+      icon = Icons.warning_amber_rounded;
+      color = Colors.orange;
+      break;
+  }
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 42),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 14),
+      ),
+      actionsAlignment: MainAxisAlignment.center,
+      actions: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    ),
+  );
+}
+
+enum AppDialogType { success, error, warning }

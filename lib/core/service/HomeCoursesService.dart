@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:learning_management_system/core/constants/globals.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/courses/data/models/course_analytic_model.dart';
 import 'package:learning_management_system/features/courses/data/models/course_content_model.dart';
@@ -15,8 +17,31 @@ class HomeCoursesService {
     return _apiService.dio.get('/courses');
   }
 
-  Future<Response> enrollToCourse(String courseId) {
-    return _apiService.dio.get('/users/$courseId/courses');
+  // Future<Response> enrollToCourse(String courseId) {
+  //   return _apiService.dio.get('/users/$courseId/courses');
+  // }
+
+  Future<bool> enrollToCourse({required String productId}) async {
+    try {
+      final response = await _apiService.dio.post(
+        '/users/${loginEmailController.text}/enrollment',
+        data: {"productId": productId, "productType": "course", "price": 0},
+      );
+
+      return response.statusCode == 200;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 422) {
+        throw Exception("User already enrolled to this course");
+      } else if (e.response?.statusCode == 401) {
+        throw Exception("Unauthorized access");
+      } else {
+        throw Exception("Connection error");
+      }
+    } catch (e, st) {
+      debugPrint('🔴 Unexpected: $e');
+      debugPrint('$st');
+      rethrow;
+    }
   }
 
   Future<Course> getAcourse(String courseId) async {
@@ -34,6 +59,21 @@ class HomeCoursesService {
       return CourseContentModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to load course content: $e');
+    }
+  }
+
+  //to be modified
+  Future<CourseContentModel> getLessonContent(
+    String courseId,
+    String lessonId,
+  ) async {
+    try {
+      final response = await _apiService.dio.get(
+        '/courses/$courseId/contents/lessons/$lessonId',
+      );
+      return CourseContentModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to load lesson content: $e');
     }
   }
 

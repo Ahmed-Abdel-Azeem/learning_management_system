@@ -18,4 +18,15 @@ class CourseContentCubit extends Cubit<CourseContentState> {
       emit(CourseContentError(e.toString()));
     }
   }
+
+  //to be modified
+  Future<void> loadLessonContent(String courseId, String lessonId) async {
+    emit(CourseContentLoading());
+    try {
+      final content = await service.getLessonContent(courseId, lessonId);
+      emit(CourseContentLoaded(content));
+    } catch (e) {
+      emit(CourseContentError(e.toString()));
+    }
+  }
 }
