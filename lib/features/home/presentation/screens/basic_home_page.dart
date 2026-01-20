@@ -5,6 +5,8 @@ import 'package:learning_management_system/features/courses/presentation/cubit/c
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/courses/presentation/screens/user_progress_screen.dart';
+import 'package:learning_management_system/features/home/presentation/Repository/UsersCourseRepository.dart';
+import 'package:learning_management_system/features/home/presentation/screens/cuibts/cubit/courses_cubit.dart';
 import 'package:learning_management_system/features/search/data/repository/CoursesRepository.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
 
@@ -28,7 +30,10 @@ class _BaseHomeState extends State<BaseHome> {
   // ✅ Updated screens with BlocProvider for HomeBody
   late final List<Widget> _screens = [
     BlocProvider(
-      create: (_) => CourseCubit(CourseApi())..loadCourses(),
+      // create: (_) => CourseCubit(CourseApi())..loadCourses(),
+      create: (_) =>
+          CoursesCubit(UsersCourseRepository(HomeCoursesService(ApiService())))
+            ..loadCourses(''),
       child: HomeBody(username: 'userName'),
       // child: HomeBody(username: 'userName'),
       //child: CourseViewPage(),
@@ -45,7 +50,7 @@ class _BaseHomeState extends State<BaseHome> {
   @override
   Widget build(BuildContext context) {
     final scheme = AppColors.primarySwatch;
-    return  PopScope(
+    return PopScope(
       canPop: _currentIndex == 0, // Allow pop only on home tab
       // ignore: deprecated_member_use
       onPopInvoked: (didPop) {
@@ -60,7 +65,10 @@ class _BaseHomeState extends State<BaseHome> {
           title: Text(
             widget.title,
             overflow: TextOverflow.visible,
-            style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontFamily: fontFamily,
+            ),
           ),
           elevation: 0,
           flexibleSpace: Container(

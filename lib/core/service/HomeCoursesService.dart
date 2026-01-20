@@ -88,4 +88,21 @@ class HomeCoursesService {
       throw Exception('Failed to load course analytic: $e');
     }
   }
+
+  Future<int> getCourseUsersOnlyCount(String courseId) async {
+    try {
+      final response = await _apiService.dio.get('/courses/$courseId/users');
+
+      final users = response.data['data'] as List;
+
+      return users.where((u) {
+        final role = u['role'];
+        return role != null &&
+            (role['level'] == 'user' || role['name'] == 'user');
+      }).length;
+    } catch (e) {
+      debugPrint('users count failed for course $courseId');
+      return 0;
+    }
+  }
 }

@@ -6,17 +6,23 @@ import 'dart:math';
 class GridCourseCard extends StatelessWidget {
   final Course course;
   final VoidCallback? onTap;
+  final int participantsCount;
 
-  const GridCourseCard({super.key, required this.course, this.onTap});
+  const GridCourseCard({
+    super.key,
+    required this.course,
+    required this.participantsCount,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    
-double randomDoubleOneDecimal() {
-  final random = Random();
-  double value = 3 + random.nextDouble() * 2; // 3.0 → 5.0
-  return double.parse(value.toStringAsFixed(1));
-}
+    double randomDoubleOneDecimal() {
+      final random = Random();
+      double value = 3 + random.nextDouble() * 2; // 3.0 → 5.0
+      return double.parse(value.toStringAsFixed(1));
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -69,30 +75,31 @@ double randomDoubleOneDecimal() {
                     const SizedBox(height: 6),
 
                     // Author
-                   if (course.author != null)
+                    if (course.author != null)
                       Text(
                         course.author!.name ?? 'Author',
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                      )else
-                        Text(
-                          'Author',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                        ),
-                        //nomber of participants
+                      )
+                    else
+                      Text(
+                        'Author',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                      ),
+                    //nomber of participants
                     const SizedBox(height: 4),
-                      // if (course.participants != null)
-                      // Text(
-                      //   course.participants ?? 'Author',
-                      //   overflow: TextOverflow.ellipsis,
-                      //   style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                      // )else
-                        Text(
-                          '1200 participants',
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.secondary,
-                        ),
+                    // if (course.participants != null)
+                    // Text(
+                    //   course.participants ?? 'Author',
+                    //   overflow: TextOverflow.ellipsis,
+                    //   style: TextStyle(color: Colors.grey[700], fontSize: 12),
+                    // )else
+                    Text(
+                      '$participantsCount  participants',
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.secondary,
+                    ),
                     Expanded(child: const SizedBox(height: 6)),
 
                     // Footer
@@ -114,21 +121,22 @@ double randomDoubleOneDecimal() {
                         //     style: TextStyle(color: Colors.white, fontSize: 12),
                         //   ),
                         // ),
-                       Row(
-                         children: [
-                           Icon(Icons.star, color: Colors.amber, size: 16),
-                           Text( randomDoubleOneDecimal().toString(),
-                          // course.rating != null
-                          //     ? course.rating!.toStringAsFixed(1)
-                          //     : '0.0',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ), 
-                         ],
-                       ),
-                        
+                        Row(
+                          children: [
+                            Icon(Icons.star, color: Colors.amber, size: 16),
+                            Text(
+                              randomDoubleOneDecimal().toString(),
+                              // course.rating != null
+                              //     ? course.rating!.toStringAsFixed(1)
+                              //     : '0.0',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+
                         Text(
                           course.access.toLowerCase() == 'free'
                               ? 'Free'
