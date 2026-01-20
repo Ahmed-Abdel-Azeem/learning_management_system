@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/core/constants/globals.dart';
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_analytic_cubit.dart';
-import 'package:learning_management_system/features/courses/data/cubits/cubit/course_content_cubit.dart';
 import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
+import 'package:learning_management_system/features/courses/data/cubits/cubit/course_lessons_cubit.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/analytic.dart';
-import 'package:learning_management_system/features/courses/presentation/widgets/authorInfo.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/contents.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/overView.dart';
 import 'package:learning_management_system/features/shared/Models/auther_model.dart';
@@ -20,10 +20,32 @@ class CourseDetailScreen extends StatefulWidget {
 }
 
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
+  bool _isEnrolled = false;
+  Future<void> getEnrolled() async {
+    try {
+      final isEnrolled = await HomeCoursesService(
+        ApiService(),
+      ).chkenrollToCourse(productId: widget.courseId);
+
+      if (mounted) {
+        setState(() {
+          _isEnrolled = isEnrolled;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isEnrolled = false;
+        });
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     context.read<CourseDataCubit>().loadingCourse(widget.courseId);
+    getEnrolled();
   }
 
   @override
@@ -31,48 +53,50 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        bottomNavigationBar: Material(
-          color: AppColors.primary,
-          child: InkWell(
-            onTap: () async {
-              //  print(widget.courseId);
-              //context.read<CourseDataCubit>().enrollToCourse(widget.courseId);
-              await HomeCoursesService(ApiService())
-                  .enrollToCourse(productId: widget.courseId)
-                  .then((value) {
-                    showAppDialog(
-                      context: context,
-                      title: 'Enrollment Successful',
-                      message:
-                          'You have been enrolled to the course successfully.',
-                      type: AppDialogType.success,
-                    );
-                  })
-                  .catchError((error) {
-                    showAppDialog(
-                      context: context,
-                      title: 'Enrollment Failed',
-                      message: error.toString(),
-                      type: AppDialogType.error,
-                    );
-                  });
-            },
-            splashColor: Colors.white.withValues(alpha: 0.2),
-            highlightColor: Colors.transparent,
-            child: Container(
-              height: 60,
-              alignment: Alignment.center,
-              child: const Text(
-                'Enroll Course',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+        bottomNavigationBar: !_isEnrolled
+            ? Material(
+                color: AppColors.primary,
+                child: InkWell(
+                  onTap: () async {
+                    //  print(widget.courseId);
+                    //context.read<CourseDataCubit>().enrollToCourse(widget.courseId);
+                    await HomeCoursesService(ApiService())
+                        .enrollToCourse(productId: widget.courseId)
+                        .then((value) {
+                          showAppDialog(
+                            context: context,
+                            title: 'Enrollment Successful',
+                            message:
+                                'You have been enrolled to the course successfully.',
+                            type: AppDialogType.success,
+                          );
+                        })
+                        .catchError((error) {
+                          showAppDialog(
+                            context: context,
+                            title: 'Enrollment Failed',
+                            message: error.toString(),
+                            type: AppDialogType.error,
+                          );
+                        });
+                  },
+                  splashColor: Colors.white.withValues(alpha: 0.2),
+                  highlightColor: Colors.transparent,
+                  child: Container(
+                    height: 60,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Enroll Course',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ),
+              )
+            : null,
         body: BlocBuilder<CourseDataCubit, CourseDataState>(
           builder: (context, state) {
             if (state is CourseDataLoading) {
@@ -163,12 +187,18 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                     'No description available',
                                 categories: state.course.categories,
                               ),
-
                               BlocProvider(
-                                create: (context) => CourseContentCubit(
-                                  HomeCoursesService(ApiService()),
-                                )..loadContent(state.course.id),
-                                child: Contents(),
+                                create: (context) =>
+                                    CourseLessonsCubit(
+                                      HomeCoursesService(ApiService()),
+                                    )..loadContent(
+                                      loginEmailController.text,
+                                      state.course.id,
+                                    ),
+                                child: Contents(
+                                  courseId: state.course.id,
+                                  isEnrolled: _isEnrolled,
+                                ),
                               ),
                             ],
                           ),

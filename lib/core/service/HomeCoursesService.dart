@@ -6,6 +6,7 @@ import 'package:learning_management_system/core/constants/globals.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/courses/data/models/course_analytic_model.dart';
 import 'package:learning_management_system/features/courses/data/models/course_content_model.dart';
+import 'package:learning_management_system/features/courses/data/models/course_lessons_model.dart';
 import 'package:learning_management_system/features/shared/Models/course.dart';
 
 class HomeCoursesService {
@@ -44,6 +45,49 @@ class HomeCoursesService {
     }
   }
 
+  Future<bool> chkenrollToCourse({required String productId}) async {
+    try {
+      final response = await _apiService.dio.get(
+        '/users/${loginEmailController.text}/courses',
+      );
+
+      if (response.data['data'] == null) {
+        return false;
+      }
+
+      for (var element in response.data['data']) {
+        final courseId = element['course']?['id']?.toString();
+
+        if (courseId == productId) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e, st) {
+      return false;
+    }
+  }
+
+  // Future<bool> chkenrollToCourse({required String productId}) async {
+  //   try {
+  //     final response = await _apiService.dio.get(
+  //       '/users/${loginEmailController.text}/courses',
+  //     );
+
+  //     response.data['data'].forEach((element) {
+  //       if (element['course']['id'] == productId) {
+  //         print(element['course']['id'] == productId);
+  //         print(productId);
+  //         return true;
+  //       }
+  //     });
+  //   } catch (e) {
+  //     throw Exception('Failed to load course: $e');
+  //   }
+  //   return false;
+  // }
+
   Future<Course> getAcourse(String courseId) async {
     try {
       final response = await _apiService.dio.get('/courses/$courseId');
@@ -59,6 +103,22 @@ class HomeCoursesService {
       return CourseContentModel.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to load course content: $e');
+    }
+  }
+  // https://stoplight.io/mocks/learnworlds/api:main/2951998/v2/users/{id}/courses/{cid}/progress
+
+  Future<CourseLessonsModel> getLessonProgress(
+    String courseId,
+    String userId,
+  ) async {
+    try {
+      final response = await _apiService.dio.get(
+        '/users/$userId/courses/$courseId/progress',
+      );
+
+      return CourseLessonsModel.fromJson(response.data);
+    } catch (e) {
+      throw Exception('Failed to load lesson content: $e');
     }
   }
 
