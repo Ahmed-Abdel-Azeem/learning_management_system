@@ -18,7 +18,16 @@ class UsersCourseRepository {
       final allResponse = await service.getAllCourses();
       final allData = allResponse.data['data'] as List? ?? [];
 
-      final enrolledCourses = await service.getUserCourses(loginEmailController.text);
+      // Get enrolled courses, handle case where user email might not be set or user has no courses
+      List<Course> enrolledCourses = [];
+      if (loginEmailController.text.isNotEmpty) {
+        try {
+          enrolledCourses = await service.getUserCourses(loginEmailController.text);
+        } catch (e) {
+          print('⚠️ Could not fetch enrolled courses (user might be new): $e');
+          // Continue with empty enrolled list - show all courses as suggestions
+        }
+      }
       
       final enrolledSlugs = enrolledCourses
           .map((c) => c.identifiers.slug?.trim().toLowerCase())
@@ -41,8 +50,8 @@ class UsersCourseRepository {
       return suggestedCourses;
 
     } catch (e) {
-      print('Error loading suggested courses: $e');
-      return [];
+      print('❌ Error loading suggested courses: $e');
+      rethrow; // Rethrow so the error is properly handled by the Cubit
     }
   }
 }

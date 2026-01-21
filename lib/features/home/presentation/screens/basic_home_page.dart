@@ -33,7 +33,11 @@ class _BaseHomeState extends State<BaseHome> {
     super.initState();
     _coursesCubit = CoursesCubit(
       UsersCourseRepository(HomeCoursesService(ApiService())),
-    )..loadCourses('');
+    );
+    // Load courses after the widget is built to ensure email is set
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _coursesCubit.loadSuggestedCourses();
+    });
   }
 
   @override
