@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
+import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
+import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/category_card.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/course_card.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
@@ -115,7 +119,7 @@ class _SearchPageState extends State<SearchPage> {
                 return GridView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: state.categories.length,
-                  gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
@@ -155,6 +159,23 @@ class _SearchPageState extends State<SearchPage> {
                       author: course.author?.name ?? 'Unknown',
                       image: course.courseImage,
                       color: AppColors.primary,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                //CourseDetailsPage(course: state.courses[index]),
+                                BlocProvider(
+                                  create: (context) => CourseDataCubit(
+                                    HomeCoursesService(ApiService()),
+                                  ),
+                                  child: CourseDetailScreen(
+                                    courseId: course.id,
+                                  ),
+                                ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
