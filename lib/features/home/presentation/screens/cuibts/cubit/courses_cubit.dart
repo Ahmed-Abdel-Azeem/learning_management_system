@@ -12,10 +12,22 @@ class CoursesCubit extends Cubit<CoursesDataState> {
   Future<void> loadCourses(String courseId) async {
     emit(CoursesDataLoading());
     try {
-      final courses = await repository.getCoursesWithUsersCount();
+      final courses = await repository.getSuggestedCoursesWithUsersCount();
       emit(CoursesDataLoaded(courses));
     } catch (e) {
       emit(CoursesDataError(e.toString()));
     }
   }
+Future<void> loadSuggestedCourses() async {
+  emit(CoursesDataLoading());
+  try {
+    final courses = await repository.getSuggestedCoursesWithUsersCount(); 
+   // final courseVMs = courses.map((c) => CourseUsersViewModel(course: c, usersCount: 0)).toList();
+    emit(CoursesDataLoaded(courses));
+  } catch (e) {
+    emit(CoursesDataError(e.toString()));
+  }
+}
+
+  
 }

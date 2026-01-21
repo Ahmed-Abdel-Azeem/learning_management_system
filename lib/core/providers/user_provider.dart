@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learning_management_system/core/constants/globals.dart';
 import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/core/service/user_service.dart';
 import 'package:learning_management_system/features/user/models/user_model.dart';
@@ -25,6 +26,8 @@ class UserProvider extends ChangeNotifier {
 
     try {
       _user = await _userService.getUser(email);
+      // Set the global email controller for API calls
+      loginEmailController.text = email;
     } catch (e) {
       _error = e.toString().replaceAll('Exception: ', '');
     } finally {
@@ -41,6 +44,8 @@ class UserProvider extends ChangeNotifier {
 
     try {
       _user = await _userService.createUser(email: email, username: username);
+      // Set the global email controller for API calls
+      loginEmailController.text = email;
     } catch (e) {
       _error = e.toString().replaceAll('Exception: ', '');
     } finally {

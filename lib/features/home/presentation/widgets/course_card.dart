@@ -5,7 +5,9 @@ class CourseCard extends StatelessWidget {
   final String title, category, author; // duration ;
   final Color? color;
   final String? image;
+  final String? courseId;
   final VoidCallback? onTap;
+
   const CourseCard({
     super.key,
     required this.title,
@@ -14,13 +16,13 @@ class CourseCard extends StatelessWidget {
     // required this.duration,
     this.color,
     this.image,
+    this.courseId,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
+    return GestureDetector(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),

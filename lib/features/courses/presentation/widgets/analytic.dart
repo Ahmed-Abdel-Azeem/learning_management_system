@@ -7,8 +7,8 @@ import 'package:learning_management_system/features/shared/Models/auther_model.d
 import 'package:learning_management_system/theme/app_theme.dart';
 
 class Analytic extends StatelessWidget {
-  const Analytic({super.key, required this.author, required this.label});
-  final Author author;
+  const Analytic({super.key, this.author, required this.label});
+  final Author? author;
   final String label;
 
   @override

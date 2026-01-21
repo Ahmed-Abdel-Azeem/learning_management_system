@@ -91,4 +91,27 @@ class UserService {
       rethrow;
     }
   }
+
+  /// Get progress for a specific course
+  /// Uses the API: /users/{id}/courses/{cid}/progress
+  Future<Map<String, dynamic>> getCourseProgress(
+    String userId,
+    String courseId,
+  ) async {
+    try {
+      final response = await _apiService.dio.get(
+        '/users/$userId/courses/$courseId/progress',
+      );
+      return response.data;
+    } on DioException catch (e) {
+      debugPrint(
+        '🔴 Failed to get progress for course $courseId: ${e.message}',
+      );
+      rethrow;
+    } catch (e, st) {
+      debugPrint('🔴 Unexpected error: $e');
+      debugPrint('$st');
+      rethrow;
+    }
+  }
 }

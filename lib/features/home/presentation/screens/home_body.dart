@@ -1,53 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:learning_management_system/core/providers/user_provider.dart';
+import 'package:learning_management_system/features/home/presentation/screens/cuibts/cubit/courses_cubit.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/CourseGridView.dart';
-import 'package:provider/provider.dart';
-
 import '../../../../theme/app_theme.dart';
-import '../../../shared/Models/course.dart';
 
 class HomeBody extends StatefulWidget {
-  const HomeBody({super.key, required this.username});
   final String username;
+  final VoidCallback? onCourseEnrolled;
+  
+  const HomeBody({super.key, required this.username, this.onCourseEnrolled});
 
   @override
   State<HomeBody> createState() => _HomeBodyState();
 }
 
 class _HomeBodyState extends State<HomeBody> {
-  List<Course> courses = [];
+  Future<void> _onRefresh() async {
+    // Reload courses when user pulls to refresh
+    context.read<CoursesCubit>().loadSuggestedCourses();
+    // Wait a bit to show the refresh indicator
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.read<UserProvider>();
-
-    return Column(
-      children: [
-        HeaderSection(username: provider.user?.username ?? ''),
-        const SizedBox(height: 16),
-
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Suggested for you', style: AppTextStyles.title),
-                  ],
-                ),
+    return BlocListener<CoursesCubit, CoursesDataState>(
+      listener: (context, state) {
+        if (state is EnrollmentSuccess) {
+          context.read<CoursesCubit>().loadSuggestedCourses();
+        }
+      },
+      child: Column(
+        children: [
+          HeaderSection(username: widget.username),
+          const SizedBox(height: 16),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Suggested for you', style: AppTextStyles.title),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  CourseGridView(onCourseEnrolled: widget.onCourseEnrolled),
+                  const SizedBox(height: 24),
+                ],
               ),
-              const SizedBox(height: 12),
-
-              CourseGridView(),
-
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -80,8 +90,9 @@ class HeaderSectionState extends State<HeaderSection> {
         children: [
           Row(
             children: [
-              Image.asset('lib/assets/images/logo1.png', height: 60, width: 90),
-              SizedBox(width: 20),
+              Image.asset('lib/assets/images/logo1.png',
+                  height: 60, width: 90),
+              const SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

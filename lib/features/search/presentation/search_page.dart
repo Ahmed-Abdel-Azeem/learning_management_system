@@ -11,7 +11,9 @@ import 'package:learning_management_system/features/search/presentation/cubit/se
 import '../../../../theme/app_theme.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final VoidCallback? onCourseEnrolled;
+  
+  const SearchPage({super.key, this.onCourseEnrolled});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -119,7 +121,7 @@ class _SearchPageState extends State<SearchPage> {
                 return GridView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: state.categories.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: crossAxisCount,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
@@ -159,22 +161,28 @@ class _SearchPageState extends State<SearchPage> {
                       author: course.author?.name ?? 'Unknown',
                       image: course.courseImage,
                       color: AppColors.primary,
-                      onTap: () {
-                        Navigator.push(
+                      courseId: course.id,
+                      onTap: () async {
+                        // Navigate to CourseDetailScreen and wait for result
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                //CourseDetailsPage(course: state.courses[index]),
-                                BlocProvider(
-                                  create: (context) => CourseDataCubit(
-                                    HomeCoursesService(ApiService()),
-                                  ),
-                                  child: CourseDetailScreen(
-                                    courseId: course.id,
-                                  ),
-                                ),
+                            builder: (_) => BlocProvider(
+                              create: (context) => CourseDataCubit(
+                                HomeCoursesService(ApiService()),
+                              ),
+                              child: CourseDetailScreen(
+                                courseId: course.id,
+                              ),
+                            ),
                           ),
                         );
+
+                        // If enrollment was successful, refresh the search results and progress
+                        if (result == true && mounted) {
+                          context.read<SearchCubit>().init();
+                          widget.onCourseEnrolled?.call();
+                        }
                       },
                     );
                   },
