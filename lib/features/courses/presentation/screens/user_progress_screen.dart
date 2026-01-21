@@ -8,6 +8,8 @@ import 'package:learning_management_system/features/courses/data/cubits/cubit/co
 import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/shared/Models/course_progress_response.dart';
 import 'package:learning_management_system/features/shared/Models/course.dart';
+import 'package:learning_management_system/features/shared/Models/course_progress.dart';
+import 'package:learning_management_system/features/shared/Models/meta.dart';
 import 'package:learning_management_system/features/shared/Models/identifiers_model.dart';
 import 'package:learning_management_system/features/courses/presentation/course_details_page.dart';
 import 'package:provider/provider.dart';
@@ -24,6 +26,7 @@ class ProgressPageState extends State<ProgressPage>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   String selectedFilter = 'All Courses';
   final UserService _userService = UserService(ApiService());
+  final HomeCoursesService _homeCoursesService = HomeCoursesService(ApiService());
 
   CourseProgressResponse? _progressData;
   bool _isLoading = false;
@@ -77,12 +80,60 @@ class ProgressPageState extends State<ProgressPage>
     });
 
     try {
-      final response = await _userService.getUserCourses(userEmail);
+      // Step 1: Get ONLY enrolled courses using HomeCoursesService
+      final enrolledCourses = await _homeCoursesService.getUserCourses(userEmail);
+      
+      // Step 2: Fetch accurate progress for each enrolled course
+      // Using the per-course API: /users/{id}/courses/{cid}/progress
+      List<CourseProgress> courseProgressList = [];
+      
+      for (var course in enrolledCourses) {
+        try {
+          final progressData = await _userService.getCourseProgress(
+            userEmail,
+            course.id,
+          );
+          
+          // Debug: Print the actual API response
+          debugPrint('📊 Progress data for ${course.id}:');
+          debugPrint('  progress_rate: ${progressData['progress_rate']}');
+          
+          // Add course_id to the progress data since API doesn't include it
+          progressData['course_id'] = course.id;
+          
+          // Parse the progress data into CourseProgress object and use actual progress
+          final courseProgress = CourseProgress.fromJson(progressData);
+          
+          debugPrint('  ✅ Parsed: progress=${courseProgress.progressRate}%, status=${courseProgress.status}, totalUnits=${courseProgress.totalUnits}, completedUnits=${courseProgress.completedUnits}');
+          
+          courseProgressList.add(courseProgress); // Use actual progress from API
+        } catch (e) {
+          debugPrint('⚠️ Could not fetch progress for course ${course.id}: $e');
+          // If individual progress fetch fails, create a default 0% progress
+          courseProgressList.add(CourseProgress(
+            courseId: course.id,
+            status: 'not_started',
+            progressRate: 0,
+            averageScoreRate: 0,
+            timeOnCourse: 0,
+            totalUnits: 0,
+            completedUnits: 0,
+            progressPerSectionUnit: [],
+          ));
+        }
+      }
+      
+      // Step 3: Create response with accurate course progress data
+      final filteredResponse = CourseProgressResponse(
+        data: courseProgressList,
+        meta: Meta(page: 1, totalItems: courseProgressList.length, totalPages: 1, itemsPerPage: courseProgressList.length),
+      );
+      
       setState(() {
-        _progressData = response;
+        _progressData = filteredResponse;
         _isLoading = false;
       });
-      debugPrint('✅ Progress data loaded: ${response.data.length} courses');
+      debugPrint('✅ Progress data loaded: ${courseProgressList.length} enrolled courses with accurate progress');
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();

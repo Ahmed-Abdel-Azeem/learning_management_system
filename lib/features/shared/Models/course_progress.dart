@@ -53,4 +53,24 @@ class CourseProgress {
         .map((e) => e.toJson())
         .toList(),
   };
+
+  /// Create a copy with corrected progress for newly enrolled courses
+  CourseProgress withCorrectedProgress() {
+    // If course is not started OR is newly enrolled (0 progress, 0 time spent)
+    if (status == 'not_started' || (progressRate == 0 && timeOnCourse == 0)) {
+      return CourseProgress(
+        courseId: courseId,
+        status: status,
+        progressRate: 0,
+        averageScoreRate: 0,
+        timeOnCourse: 0,
+        totalUnits: 0, // Set to 0 to show 0% progress
+        completedUnits: 0,
+        completedAt: completedAt,
+        progressPerSectionUnit: progressPerSectionUnit,
+      );
+    }
+    // Return original if already started or completed
+    return this;
+  }
 }

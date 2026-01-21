@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/core/service/HomeCoursesService.dart';
+import 'package:learning_management_system/core/service/api.dart';
+import 'package:learning_management_system/features/courses/data/cubits/cubit/course_data_cubit.dart';
+import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/category_card.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/course_card.dart';
 import 'package:learning_management_system/features/search/presentation/cubit/search_cubit.dart';
@@ -7,7 +11,9 @@ import 'package:learning_management_system/features/search/presentation/cubit/se
 import '../../../../theme/app_theme.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final VoidCallback? onCourseEnrolled;
+  
+  const SearchPage({super.key, this.onCourseEnrolled});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -155,6 +161,29 @@ class _SearchPageState extends State<SearchPage> {
                       author: course.author?.name ?? 'Unknown',
                       image: course.courseImage,
                       color: AppColors.primary,
+                      courseId: course.id,
+                      onTap: () async {
+                        // Navigate to CourseDetailScreen and wait for result
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (context) => CourseDataCubit(
+                                HomeCoursesService(ApiService()),
+                              ),
+                              child: CourseDetailScreen(
+                                courseId: course.id,
+                              ),
+                            ),
+                          ),
+                        );
+
+                        // If enrollment was successful, refresh the search results and progress
+                        if (result == true && mounted) {
+                          context.read<SearchCubit>().init();
+                          widget.onCourseEnrolled?.call();
+                        }
+                      },
                     );
                   },
                 );

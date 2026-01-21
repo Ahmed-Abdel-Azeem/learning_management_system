@@ -10,7 +10,6 @@ import 'package:learning_management_system/features/courses/presentation/widgets
 import 'package:learning_management_system/features/courses/presentation/widgets/contents.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/overView.dart';
 import 'package:learning_management_system/features/shared/Models/auther_model.dart';
-import 'package:learning_management_system/features/home/presentation/screens/cuibts/cubit/courses_cubit.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
 
 class CourseDetailScreen extends StatefulWidget {
@@ -52,10 +51,17 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        bottomNavigationBar: !_isEnrolled
+    return BlocBuilder<CourseDataCubit, CourseDataState>(
+      builder: (context, state) {
+
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text('Suez Canal Authority LMS'),
+              elevation: 0,
+            ),
+            bottomNavigationBar: !_isEnrolled
             ? Material(
                 color: AppColors.primary,
                 child: InkWell(
@@ -64,28 +70,125 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                       await HomeCoursesService(ApiService())
                           .enrollToCourse(productId: widget.courseId);
 
-                      // 🔔 Emit EnrollmentSuccess to update HomeBody
+                      if (mounted) {
+                        setState(() {
+                          _isEnrolled = true;
+                        });
 
-                      setState(() {
-                        _isEnrolled = true;
-                      });
+                        // Show success dialog and wait for it to close
+                        if (mounted) {
+                          await showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (dialogContext) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              title: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    color: Colors.green,
+                                    size: 42,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    'Enrollment Successful',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              content: const Text(
+                                'You have been enrolled to the course successfully.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              actionsAlignment: MainAxisAlignment.center,
+                              actions: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(dialogContext); // Close dialog
+                                  },
+                                  child: const Text('OK',
+                                      style:
+                                          TextStyle(color: Colors.white)),
+                                ),
+                              ],
+                            ),
+                          );
 
-                      showAppDialog(
-                        context: context,
-                        title: 'Enrollment Successful',
-                        message:
-                            'You have been enrolled to the course successfully.',
-                        type: AppDialogType.success,
-                      );
-                      context.read<CoursesCubit>().emit(EnrollmentSuccess());
-
+                          // After dialog closes, navigate back to home with success indicator
+                          if (mounted) {
+                            Navigator.pop(context, true);
+                          }
+                        }
+                      }
                     } catch (error) {
-                      showAppDialog(
-                        context: context,
-                        title: 'Enrollment Failed',
-                        message: error.toString(),
-                        type: AppDialogType.error,
-                      );
+                      if (mounted) {
+                        await showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (dialogContext) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            title: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.error_outline,
+                                  color: Colors.redAccent,
+                                  size: 42,
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Enrollment Failed',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.redAccent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: Text(
+                              error.toString(),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            actionsAlignment: MainAxisAlignment.center,
+                            actions: [
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.redAccent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onPressed: () =>
+                                    Navigator.pop(dialogContext),
+                                child: const Text('OK',
+                                    style:
+                                        TextStyle(color: Colors.white)),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
                     }
                   },
                   splashColor: Colors.white.withOpacity(0.2),
@@ -105,14 +208,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 ),
               )
             : null,
-        body: BlocBuilder<CourseDataCubit, CourseDataState>(
-          builder: (context, state) {
-            if (state is CourseDataLoading) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (state is CourseDataError) {
-              return Center(child: Text('Error: ${state.message}'));
-            } else if (state is CourseDataLoaded) {
-              return ListView(
+        body: state is CourseDataLoading
+            ? const Center(child: CircularProgressIndicator())
+            : state is CourseDataError
+                ? Center(child: Text('Error: ${state.message}'))
+                : state is CourseDataLoaded
+                    ? ListView(
                 children: [
                   state.course.courseImage != null &&
                           state.course.courseImage!.isNotEmpty
@@ -157,10 +258,9 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                               HomeCoursesService(ApiService()))
                             ..loadAnalytic(widget.courseId),
                           child: Analytic(
-                            author:
-                                state.course.author ?? Author(name: 'Unknown'),
+                            author: state.course.author,
                             label: (state.course.label ??
-                                (state.course.author?.name ?? '')),
+                                (state.course.author?.name ?? 'Unknown')),
                           ),
                         ),
                         const SizedBox(height: 15),
@@ -182,11 +282,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                 categories: state.course.categories,
                               ),
                               BlocProvider(
-                                create: (context) => CourseLessonsCubit(
-                                    HomeCoursesService(ApiService()))
-                                  ..loadContent(
-                                      loginEmailController.text,
-                                      state.course.id),
+                                create: (context) => _isEnrolled
+                                    ? (CourseLessonsCubit(
+                                        HomeCoursesService(ApiService()))
+                                      ..loadContent(
+                                          loginEmailController.text,
+                                          state.course.id))
+                                    : CourseLessonsCubit(
+                                        HomeCoursesService(ApiService())),
                                 child: Contents(
                                   courseId: state.course.id,
                                   isEnrolled: _isEnrolled,
@@ -199,12 +302,11 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                     ),
                   ),
                 ],
-              );
-            }
-            return const Center(child: Text('No data'));
-          },
-        ),
-      ),
+              )
+            : const Center(child: Text('No data')),
+          ),
+        );
+      },
     );
   }
 }

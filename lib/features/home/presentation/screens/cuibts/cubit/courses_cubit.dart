@@ -1,11 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import 'package:learning_management_system/core/service/HomeCoursesService.dart';
-import 'package:learning_management_system/core/service/api.dart';
 import 'package:learning_management_system/features/home/presentation/Repository/UsersCourseRepository.dart';
 import 'package:learning_management_system/features/home/presentation/viewModel/CourseUsersViewModel.dart';
-import 'package:learning_management_system/features/shared/Models/course.dart';
 
 part 'courses_state.dart';
 

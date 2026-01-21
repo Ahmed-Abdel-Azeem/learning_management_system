@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:learning_management_system/core/constants/globals.dart';
@@ -75,7 +73,7 @@ class HomeCoursesService {
       }
 
       return false;
-    } catch (e, st) {
+    } catch (e) {
       return false;
     }
   }
@@ -123,12 +121,15 @@ class HomeCoursesService {
     String userId,
   ) async {
     try {
+      debugPrint('📚 Fetching lessons for course: $courseId, user: $userId');
       final response = await _apiService.dio.get(
         '/users/$userId/courses/$courseId/progress',
       );
-
+      
+      debugPrint('📚 Lessons API Response: ${response.data}');
       return CourseLessonsModel.fromJson(response.data);
     } catch (e) {
+      debugPrint('❌ Failed to load lessons: $e');
       throw Exception('Failed to load lesson content: $e');
     }
   }
@@ -174,6 +175,47 @@ class HomeCoursesService {
     } catch (e) {
       debugPrint('users count failed for course $courseId');
       return 0;
+    }
+  }
+
+  /// Mark a lesson as complete for a user
+  Future<void> markLessonComplete({
+    required String userId,
+    required String courseId,
+    required String lessonId,
+  }) async {
+    try {
+      // LearnWorlds API: POST /users/{userId}/courses/{courseId}/progress
+      // with body: { "unit_id": "lessonId", "completed": true }
+      await _apiService.dio.post(
+        '/users/$userId/courses/$courseId/progress',
+        data: {
+          'unit_id': lessonId,
+          'completed': true,
+        },
+      );
+      debugPrint('✅ Marked lesson $lessonId as complete');
+    } catch (e) {
+      debugPrint('⚠️ Failed to mark lesson complete: $e');
+      rethrow;
+    }
+  }
+
+  /// Update time spent on a course
+  Future<void> updateTimeSpent({
+    required String userId,
+    required String courseId,
+    required int minutesSpent,
+  }) async {
+    try {
+      await _apiService.dio.put(
+        '/users/$userId/courses/$courseId/time',
+        data: {'time_on_course': minutesSpent},
+      );
+      debugPrint('✅ Updated time spent: $minutesSpent minutes');
+    } catch (e) {
+      debugPrint('⚠️ Failed to update time spent: $e');
+      rethrow;
     }
   }
 }

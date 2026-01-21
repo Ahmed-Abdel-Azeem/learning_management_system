@@ -6,11 +6,17 @@ import 'package:learning_management_system/features/courses/data/cubits/cubit/co
 import 'package:learning_management_system/features/courses/presentation/screens/course_detail_screen.dart';
 import 'package:learning_management_system/features/home/presentation/screens/cuibts/cubit/courses_cubit.dart';
 import 'package:learning_management_system/features/home/presentation/widgets/GridCourseCard.dart';
-import 'package:learning_management_system/features/shared/Models/Course.dart';
 
-class CourseGridView extends StatelessWidget {
-  const CourseGridView({super.key});
+class CourseGridView extends StatefulWidget {
+  final VoidCallback? onCourseEnrolled;
+  
+  const CourseGridView({super.key, this.onCourseEnrolled});
 
+  @override
+  State<CourseGridView> createState() => _CourseGridViewState();
+}
+
+class _CourseGridViewState extends State<CourseGridView> {
   @override
   Widget build(BuildContext context) {
     var screenSize = MediaQuery.of(context).size;
@@ -26,6 +32,40 @@ class CourseGridView extends StatelessWidget {
         }
 
         if (state is CoursesDataLoaded) {
+          // Check if courses list is empty
+          if (state.courses.isEmpty) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.hourglass_empty, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'No Courses Available Yet',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Please wait for more courses to be added',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           return GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -41,22 +81,27 @@ class CourseGridView extends StatelessWidget {
               return GridCourseCard(
                 course: state.courses[index].course,
                 participantsCount: state.courses[index].usersCount,
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  // Navigate to CourseDetailScreen and wait for result
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          //CourseDetailsPage(course: state.courses[index]),
-                          BlocProvider(
-                            create: (context) => CourseDataCubit(
-                              HomeCoursesService(ApiService()),
-                            ),
-                            child: CourseDetailScreen(
-                              courseId: state.courses[index].course.id,
-                            ),
-                          ),
+                      builder: (_) => BlocProvider(
+                        create: (context) => CourseDataCubit(
+                          HomeCoursesService(ApiService()),
+                        ),
+                        child: CourseDetailScreen(
+                          courseId: state.courses[index].course.id,
+                        ),
+                      ),
                     ),
                   );
+
+                  // If enrollment was successful, refresh the courses and progress
+                  if (result == true && mounted) {
+                    context.read<CoursesCubit>().loadSuggestedCourses();
+                    widget.onCourseEnrolled?.call();
+                  }
                 },
               );
             },
