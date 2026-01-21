@@ -21,3 +21,5 @@ final class CoursesDataError extends CoursesDataState {
   @override
   List<Object?> get props => [errorMessage];
 }
+
+class EnrollmentSuccess extends CoursesDataState {}

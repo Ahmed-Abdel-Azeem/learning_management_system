@@ -10,22 +10,24 @@ import 'package:learning_management_system/features/courses/presentation/widgets
 import 'package:learning_management_system/features/courses/presentation/widgets/contents.dart';
 import 'package:learning_management_system/features/courses/presentation/widgets/overView.dart';
 import 'package:learning_management_system/features/shared/Models/auther_model.dart';
+import 'package:learning_management_system/features/home/presentation/screens/cuibts/cubit/courses_cubit.dart';
 import 'package:learning_management_system/theme/app_theme.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   const CourseDetailScreen({super.key, required this.courseId});
   final String courseId;
+
   @override
   State<CourseDetailScreen> createState() => _CourseDetailScreenState();
 }
 
 class _CourseDetailScreenState extends State<CourseDetailScreen> {
   bool _isEnrolled = false;
+
   Future<void> getEnrolled() async {
     try {
-      final isEnrolled = await HomeCoursesService(
-        ApiService(),
-      ).chkenrollToCourse(productId: widget.courseId);
+      final isEnrolled = await HomeCoursesService(ApiService())
+          .chkenrollToCourse(productId: widget.courseId);
 
       if (mounted) {
         setState(() {
@@ -58,29 +60,35 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                 color: AppColors.primary,
                 child: InkWell(
                   onTap: () async {
-                    //  print(widget.courseId);
-                    //context.read<CourseDataCubit>().enrollToCourse(widget.courseId);
-                    await HomeCoursesService(ApiService())
-                        .enrollToCourse(productId: widget.courseId)
-                        .then((value) {
-                          showAppDialog(
-                            context: context,
-                            title: 'Enrollment Successful',
-                            message:
-                                'You have been enrolled to the course successfully.',
-                            type: AppDialogType.success,
-                          );
-                        })
-                        .catchError((error) {
-                          showAppDialog(
-                            context: context,
-                            title: 'Enrollment Failed',
-                            message: error.toString(),
-                            type: AppDialogType.error,
-                          );
-                        });
+                    try {
+                      await HomeCoursesService(ApiService())
+                          .enrollToCourse(productId: widget.courseId);
+
+                      // 🔔 Emit EnrollmentSuccess to update HomeBody
+
+                      setState(() {
+                        _isEnrolled = true;
+                      });
+
+                      showAppDialog(
+                        context: context,
+                        title: 'Enrollment Successful',
+                        message:
+                            'You have been enrolled to the course successfully.',
+                        type: AppDialogType.success,
+                      );
+                      context.read<CoursesCubit>().emit(EnrollmentSuccess());
+
+                    } catch (error) {
+                      showAppDialog(
+                        context: context,
+                        title: 'Enrollment Failed',
+                        message: error.toString(),
+                        type: AppDialogType.error,
+                      );
+                    }
                   },
-                  splashColor: Colors.white.withValues(alpha: 0.2),
+                  splashColor: Colors.white.withOpacity(0.2),
                   highlightColor: Colors.transparent,
                   child: Container(
                     height: 60,
@@ -104,15 +112,8 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
             } else if (state is CourseDataError) {
               return Center(child: Text('Error: ${state.message}'));
             } else if (state is CourseDataLoaded) {
-              // Here you can access the course data using state.course
               return ListView(
                 children: [
-                  // Image.network(
-                  //   state.course.courseImage!,//to be moidified if no image
-                  //   fit: BoxFit.cover,
-                  //   height: 250,
-                  //   width: double.infinity,
-                  // ),
                   state.course.courseImage != null &&
                           state.course.courseImage!.isNotEmpty
                       ? Image.network(
@@ -121,15 +122,14 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                         )
                       : Container(
                           color: Colors.grey[300],
-                          child: Center(
-                            child: const Icon(
+                          child: const Center(
+                            child: Icon(
                               Icons.image,
                               size: 40,
                               color: Colors.white70,
                             ),
                           ),
                         ),
-
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -152,22 +152,18 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                           ],
                         ),
                         const SizedBox(height: 10),
-
-                        // 4. Author Info
                         BlocProvider(
                           create: (context) => CourseAnalyticCubit(
-                            HomeCoursesService(ApiService()),
-                          )..loadAnalytic(widget.courseId),
+                              HomeCoursesService(ApiService()))
+                            ..loadAnalytic(widget.courseId),
                           child: Analytic(
-                            author: //state.course.author!
+                            author:
                                 state.course.author ?? Author(name: 'Unknown'),
-                            label:
-                                (state.course.label ??
+                            label: (state.course.label ??
                                 (state.course.author?.name ?? '')),
                           ),
                         ),
                         const SizedBox(height: 15),
-
                         const TabBar(
                           indicatorColor: AppColors.primary,
                           tabs: [
@@ -178,23 +174,19 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                         const SizedBox(height: 20),
                         SizedBox(
                           height: 600,
-
                           child: TabBarView(
                             children: [
                               Overview(
-                                desc:
-                                    state.course.description ??
+                                desc: state.course.description ??
                                     'No description available',
                                 categories: state.course.categories,
                               ),
                               BlocProvider(
-                                create: (context) =>
-                                    CourseLessonsCubit(
-                                      HomeCoursesService(ApiService()),
-                                    )..loadContent(
+                                create: (context) => CourseLessonsCubit(
+                                    HomeCoursesService(ApiService()))
+                                  ..loadContent(
                                       loginEmailController.text,
-                                      state.course.id,
-                                    ),
+                                      state.course.id),
                                 child: Contents(
                                   courseId: state.course.id,
                                   isEnrolled: _isEnrolled,
@@ -271,9 +263,8 @@ void showAppDialog({
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: color,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           onPressed: () => Navigator.pop(context),
           child: const Text('OK', style: TextStyle(color: Colors.white)),

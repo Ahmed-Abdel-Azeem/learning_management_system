@@ -45,6 +45,17 @@ class HomeCoursesService {
     }
   }
 
+  // fetch user enrolled courses
+  Future<List<Course>> getUserCourses(String userId) async {
+    final response = await _apiService.dio.get('/users/$userId/courses');
+
+    final List data = response.data['data']; // extract the 'data' array
+    
+    return data
+        .map((item) => Course.fromJson(item['course'])) // use item['course']
+        .toList();
+  }
+
   Future<bool> chkenrollToCourse({required String productId}) async {
     try {
       final response = await _apiService.dio.get(

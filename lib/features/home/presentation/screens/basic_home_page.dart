@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:learning_management_system/core/providers/user_provider.dart';
 import 'package:learning_management_system/features/courses/data/api/course_api.dart';
 import 'package:learning_management_system/features/courses/presentation/cubit/course_cubit.dart';
 import 'package:learning_management_system/core/service/HomeCoursesService.dart';
@@ -18,7 +19,6 @@ import 'home_body.dart';
 
 class BaseHome extends StatefulWidget {
   const BaseHome({super.key, required this.title});
-
   final String title;
 
   @override
@@ -27,49 +27,28 @@ class BaseHome extends StatefulWidget {
 
 class _BaseHomeState extends State<BaseHome> {
   int _currentIndex = 0;
-  // ✅ Updated screens with BlocProvider for HomeBody
-  late final List<Widget> _screens = [
-    BlocProvider(
-      // create: (_) => CourseCubit(CourseApi())..loadCourses(),
-      create: (_) =>
-          CoursesCubit(UsersCourseRepository(HomeCoursesService(ApiService())))
-            ..loadCourses(''),
-      child: HomeBody(username: 'userName'),
-      // child: HomeBody(username: 'userName'),
-      //child: CourseViewPage(),
-    ),
-    ProgressPage(),
-    BlocProvider(
-      create: (_) =>
-          SearchCubit(CoursesRepository(HomeCoursesService(ApiService()))),
-      child: SearchPage(),
-    ),
-    ProfilePage(title: ''),
-  ];
 
   @override
   Widget build(BuildContext context) {
     final scheme = AppColors.primarySwatch;
+
+    final List<Widget> _screens = [
+      HomeBody(username: context.read<UserProvider>().user?.username ?? ''),
+      ProgressPage(),
+      SearchPage(),
+      ProfilePage(title: ''),
+    ];
+
     return PopScope(
-      canPop: _currentIndex == 0, // Allow pop only on home tab
-      // ignore: deprecated_member_use
+      canPop: _currentIndex == 0,
       onPopInvoked: (didPop) {
         if (!didPop && _currentIndex != 0) {
-          setState(() {
-            _currentIndex = 0; // Navigate to home tab
-          });
+          setState(() => _currentIndex = 0);
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            widget.title,
-            overflow: TextOverflow.visible,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontFamily: fontFamily,
-            ),
-          ),
+          title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600, fontFamily: fontFamily)),
           elevation: 0,
           flexibleSpace: Container(
             decoration: BoxDecoration(
@@ -85,20 +64,13 @@ class _BaseHomeState extends State<BaseHome> {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
           selectedItemColor: AppColors.primary,
-          backgroundColor: AppColors.border,
-          showUnselectedLabels: true,
           unselectedItemColor: AppColors.textSecondary,
-          unselectedIconTheme: IconThemeData(color: AppColors.textSecondary),
-          selectedIconTheme: IconThemeData(color: AppColors.primary),
           onTap: (index) => setState(() => _currentIndex = index),
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart),
-              label: 'progress',
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'profile'),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: 'Progress'),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
       ),
