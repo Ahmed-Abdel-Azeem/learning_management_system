@@ -48,7 +48,7 @@ class HomeCoursesService {
     final response = await _apiService.dio.get('/users/$userId/courses');
 
     final List data = response.data['data']; // extract the 'data' array
-    
+
     return data
         .map((item) => Course.fromJson(item['course'])) // use item['course']
         .toList();
@@ -125,7 +125,7 @@ class HomeCoursesService {
       final response = await _apiService.dio.get(
         '/users/$userId/courses/$courseId/progress',
       );
-      
+
       debugPrint('📚 Lessons API Response: ${response.data}');
       return CourseLessonsModel.fromJson(response.data);
     } catch (e) {
@@ -165,15 +165,10 @@ class HomeCoursesService {
     try {
       final response = await _apiService.dio.get('/courses/$courseId/users');
 
-      final users = response.data['data'] as List;
-
-      return users.where((u) {
-        final role = u['role'];
-        return role != null &&
-            (role['level'] == 'user' || role['name'] == 'user');
-      }).length;
+      final meta = response.data['meta'] as Map<String, dynamic>;
+      return meta['totalItems'] ?? 0;
     } catch (e) {
-      debugPrint('users count failed for course $courseId');
+     // debugPrint('users count failed for course $courseId: $e');
       return 0;
     }
   }
@@ -189,10 +184,7 @@ class HomeCoursesService {
       // with body: { "unit_id": "lessonId", "completed": true }
       await _apiService.dio.post(
         '/users/$userId/courses/$courseId/progress',
-        data: {
-          'unit_id': lessonId,
-          'completed': true,
-        },
+        data: {'unit_id': lessonId, 'completed': true},
       );
       debugPrint('✅ Marked lesson $lessonId as complete');
     } catch (e) {
